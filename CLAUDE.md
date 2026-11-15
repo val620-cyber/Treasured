@@ -30,9 +30,14 @@ came from.
 
 ## Files
 
-- `web/index.html` — the whole app: markup, styles and script in one file, plain JavaScript,
+On Val's Mac the project is in `Documents/Treasured`, in two folders:
+`UPLOAD-TO-GITHUB/` (everything in the GitHub repository, this file included) and `ios/`
+(the iPhone project, kept on the Mac only). Paths below starting with `ios/` are in that
+second folder; the rest are in the repository.
+
+- `index.html` — the whole app: markup, styles and script in one file, plain JavaScript,
   no build step, no libraries. State is saved in `localStorage` under the key `treasured.v1`.
-- `web/assets/flow.jpg` and `web/assets/ribbon.jpg` — the two backgrounds.
+- `assets/flow.jpg` and `assets/ribbon.jpg` — the two backgrounds.
 - `ios/Treasured.xcodeproj` — Xcode project (hand-written; uses a synchronized folder group, so
   any file placed in `ios/Treasured/` is included automatically).
 - `ios/Treasured/index.html` — a copy of the web page for the iPhone app (see "Keeping the two
@@ -41,9 +46,10 @@ came from.
 - `README.md` — plain-English overview and App Store steps.
 
 The web version is published with GitHub Pages from the repository `treasured`
-(index.html and the assets folder at the top level of the repository).
+(index.html and the assets folder at the top level of the repository). When you change
+anything, give Val one folder to upload from, with no old copies left beside it.
 
-## How the code is organised (`web/index.html`)
+## How the code is organised (`index.html`)
 
 - Between `/*LOGIC*/` and `/*END*/`: pure functions for dates and the schedule
   (`planDay`, `buildOffsets`, `stage`, `tasksFor`, `dateOfPlanDay`, `parsePaste`, `planTitle`).
@@ -59,7 +65,7 @@ The web version is published with GitHub Pages from the repository `treasured`
 
 ## Keeping the two copies in step
 
-After changing `web/index.html`, remake `ios/Treasured/index.html` from it with three changes:
+After changing `index.html`, remake `ios/Treasured/index.html` from it with three changes:
 
 1. On the line `var IMG_A='assets/flow.jpg',IMG_B='assets/ribbon.jpg';` replace the two paths
    with the images as `data:image/jpeg;base64,...` strings.

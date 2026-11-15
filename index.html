@@ -19,6 +19,13 @@ body{font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:#fff
 @keyframes floaty{from{transform:translateY(0)}to{transform:translateY(-4px)}}
 .still #bg img,.still .card{animation:none!important}
 @media (prefers-reduced-motion:reduce){#bg img,.card{animation:none!important}}
+#ribbon{position:absolute;top:0;left:0;width:100%;height:100%;display:none}
+#sheen{display:none;position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.6) 50%,transparent 58%);mix-blend-mode:soft-light;animation:sheen 9s ease-in-out infinite alternate}
+.theme-b #sheen{display:block}
+.still #sheen{display:none}
+@keyframes sheen{from{transform:translateX(-35%)}to{transform:translateX(35%)}}
+@media (prefers-reduced-motion:reduce){#sheen{display:none!important}}
+#glitter{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
 main{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:28px 16px 120px}
 .theme-b main{padding-top:150px}
 .card{border-radius:22px;padding:16px 18px;margin-bottom:14px}
@@ -91,21 +98,75 @@ textarea{min-height:140px;line-height:1.4}
 </style>
 </head>
 <body class="theme-a">
-<div id="bg"><img id="bgimg" alt=""></div>
+<div id="bg"><img id="bgimg" alt=""><canvas id="ribbon" aria-hidden="true"></canvas><div id="sheen" aria-hidden="true"></div></div>
+<canvas id="glitter" aria-hidden="true"></canvas>
 <main id="app"></main>
 <nav id="tabs" hidden></nav>
 <script>
 /*LOGIC*/
+var LANG='en';
 var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var WDL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 var MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var WD_ES=['dom','lun','mar','mié','jue','vie','sáb'];
+var WDL_ES=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+var MO_ES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 var REPS=[25,20,15,10];
+var ES={
+ 'Today':'Hoy','Calendar':'Calendario','Passages':'Pasajes','Settings':'Ajustes',
+ 'Flowing gold':'Oro fluido','Silk ribbon':'Cinta de seda',
+ 'Welcome':'Bienvenido',
+ "Bury God's Word deep in your heart, a few minutes a day. Pick a passage, choose your pace, and your calendar is built for you.":'Entierra la Palabra de Dios en lo profundo de tu corazón, unos minutos al día. Elige un pasaje y tu ritmo, y tu calendario se arma solo.',
+ 'Language':'Idioma','Choose your look':'Elige tu estilo','You can change this any time in Settings.':'Puedes cambiarlo cuando quieras en Ajustes.','Continue':'Continuar',
+ 'New verse · day {a} of 4':'Versículo nuevo · día {a} de 4','Still learning · day {a} of 4':'Aprendiendo · día {a} de 4',
+ 'Daily review · day {a} of 45':'Repaso diario · día {a} de 45','Weekly review · week {a} of 7':'Repaso semanal · semana {a} de 7','Monthly review':'Repaso mensual',
+ 'of':'de','Done for today':'Listo por hoy','I said it — tap':'Lo dije — toca','Show words':'Mostrar texto','Hide words':'Ocultar texto','Undo last tap':'Deshacer el último toque',
+ 'Say it once · tap to hide the words':'Dilo una vez · toca para ocultar el texto','Say it once · tap to check the words':'Dilo una vez · toca para ver el texto','Mark {a} as said':'Marcar {a} como dicho',
+ "Today's practice":'Práctica de hoy','{a} of {b} left today':'Faltan {a} de {b} hoy','All done for today. Well done.':'Todo listo por hoy. ¡Bien hecho!','Nothing scheduled today. Rest well.':'Hoy no hay nada programado. Descansa.',
+ 'Start your first passage':'Comienza tu primer pasaje','Choose a verse or passage and we will build your schedule.':'Elige un versículo o pasaje y armaremos tu calendario.','Choose a passage':'Elegir un pasaje',
+ 'Missed yesterday?':'¿Faltaste ayer?','No guilt. Slide your whole schedule forward one day and pick up where you left off.':'Sin culpa. Mueve todo tu calendario un día y continúa donde te quedaste.','Move my schedule forward':'Mover mi calendario',
+ 'Nothing scheduled.':'Nada programado.','New verse':'Versículo nuevo','gold ring: completed':'aro dorado: completado','Filled: today':'Relleno: hoy','Reminder time on {a}s: ':'Recordatorio los {a}: ',
+ 'Previous month':'Mes anterior','Next month':'Mes siguiente',
+ 'On {a}':'Los {a}','Every day':'Cada día','Once a week':'Una vez por semana','Every {a} days':'Cada {a} días','Every 2 days':'Cada 2 días','Every 3 days':'Cada 3 días','fastest':'más rápido','gentlest':'más suave',
+ 'Everything you are memorizing.':'Todo lo que estás memorizando.','Add a verse or passage':'Agregar un versículo o pasaje','{a} of {b} verses started':'{a} de {b} versículos comenzados','began {a}':'comenzó el {a}',
+ 'Take a rest day today':'Descansar hoy','Delete this passage and its progress?':'¿Borrar este pasaje y su progreso?','Yes, delete':'Sí, borrar','Keep':'Conservar','Delete':'Borrar',
+ 'Background':'Fondo','Still mode':'Modo quieto','motion off':'sin movimiento','motion on':'con movimiento','Reminder times':'Horas de recordatorio',
+ 'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Recibirás un recordatorio a estas horas, con botones para posponerlo 1, 2 o 3 horas.',
+ 'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.':'Guardadas para cada día de la semana. Los recordatorios con opción de posponer llegan con la versión para iPhone; esta versión web no puede enviarlos.',
+ 'About':'Acerca de',
+ 'Scripture from the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.':'Texto bíblico de la King James Version (inglés) y la Reina-Valera 1909 (español), ambas de dominio público, consultadas por medio de bible-api.com. También puedes pegar versículos de tu propia Biblia para uso personal. Tus pasajes y tu progreso se guardan solo en este dispositivo.',
+ 'Erase all passages and progress on this device?':'¿Borrar todos los pasajes y el progreso de este dispositivo?','Yes, erase':'Sí, borrar todo','Erase everything':'Borrar todo',
+ 'Step {a} of 5':'Paso {a} de 5','Cancel':'Cancelar','What would you like to memorize?':'¿Qué te gustaría memorizar?','King James Version':'Reina-Valera 1909','Paste my own':'Pegar el mío',
+ 'Book':'Libro','Chapter':'Capítulo','From verse':'Desde el versículo','To verse':'Hasta el versículo','optional':'opcional','Looking up…':'Buscando…','Add these verses':'Agregar estos versículos',
+ 'Reference':'Referencia','Translation (optional)':'Traducción (opcional)','Verses, one per line':'Versículos, uno por línea','Paste or type each verse on its own line':'Pega o escribe cada versículo en su propia línea','Colossians 3:1-17':'Colosenses 3:1-17','LSB, NASB, ESV…':'RVR1960, NBLA, LBLA…',
+ 'Your list':'Tu lista','verse':'versículo','verses':'versículos','Remove {a}':'Quitar {a}','Add more from anywhere in the Bible, or continue.':'Agrega más de cualquier parte de la Biblia, o continúa.',
+ 'When would you like to start?':'¿Cuándo te gustaría comenzar?','Start date':'Fecha de inicio','Your first verse begins on this day.':'Tu primer versículo comienza este día.',
+ 'How often would you like a new verse?':'¿Cada cuánto quieres un versículo nuevo?','Choose weekdays':'Elegir días de la semana','e.g. Mon · Wed · Fri':'p. ej. lun · mié · vie',
+ 'When should we remind you?':'¿A qué hora te recordamos?',
+ 'Pick a time for each day. Each reminder has buttons to snooze for 1, 2 or 3 hours.':'Elige una hora para cada día. Cada recordatorio tiene botones para posponerlo 1, 2 o 3 horas.',
+ 'Pick a time for each day. Reminders with a snooze button arrive with the iPhone version; for now these times show on your calendar.':'Elige una hora para cada día. Los recordatorios con botón de posponer llegan con la versión para iPhone; por ahora estas horas se muestran en tu calendario.',
+ 'starts {a}':'comienza el {a}','Your plan':'Tu plan','each new verse: 25, 20, 15, then 10 times over four days, then a short daily review.':'cada versículo nuevo: 25, 20, 15 y luego 10 veces en cuatro días, y después un breve repaso diario.',
+ '…and {a} more.':'…y {a} más.','Last new verse:':'Último versículo nuevo:','Back':'Atrás','Start my plan':'Comenzar mi plan',
+ 'Type or paste at least one verse first.':'Primero escribe o pega al menos un versículo.','Added.':'Agregado.','Enter a chapter and a starting verse.':'Escribe un capítulo y un versículo inicial.','Added {a}.':'Se agregaron {a}.',
+ 'The Bible text could not be reached from here. Paste the verses below instead.':'No se pudo obtener el texto bíblico desde aquí. Pega los versículos abajo.',
+ 'Switch background':'Cambiar fondo','My verse':'Mi versículo','My passage':'Mi pasaje','part':'parte','{a} and {b} more':'{a} y {b} más'
+};
+function tx(s){return LANG==='es'&&ES[s]!==undefined?ES[s]:s;}
+function txf(s,a,b){return tx(s).replace('{a}',a).replace('{b}',b);}
+function wd(i){return (LANG==='es'?WD_ES:WD)[i];}
+function wdl(i){return (LANG==='es'?WDL_ES:WDL)[i];}
+function mo(i){return (LANG==='es'?MO_ES:MO)[i];}
+function pv(n){return n+' '+tx(n===1?'verse':'verses');}
 function dn(y,m,d){return Math.round(Date.UTC(y,m,d)/864e5);}
 function isoToDn(s){var p=s.split('-').map(Number);return dn(p[0],p[1]-1,p[2]);}
 function dnToDate(n){return new Date(n*864e5);}
 function dnToIso(n){return dnToDate(n).toISOString().slice(0,10);}
 function todayDn(){var t=new Date();return dn(t.getFullYear(),t.getMonth(),t.getDate());}
-function fmt(n,long){var d=dnToDate(n);return (long?WDL:WD)[d.getUTCDay()]+', '+(long?MO[d.getUTCMonth()]:MO[d.getUTCMonth()].slice(0,3))+' '+d.getUTCDate();}
+function fmt(n,long){
+  var d=dnToDate(n),w=d.getUTCDay(),m=d.getUTCMonth(),day=d.getUTCDate();
+  if(LANG==='es')return long?WDL_ES[w]+', '+day+' de '+MO_ES[m]:WD_ES[w]+', '+day+' '+MO_ES[m].slice(0,3);
+  return (long?WDL:WD)[w]+', '+(long?MO[m]:MO[m].slice(0,3))+' '+day;
+}
 // How many plan-days into the plan a real date is; null on a rest day or before the start.
 function planDay(plan,n){
   var raw=n-isoToDn(plan.start);
@@ -127,10 +188,10 @@ function buildOffsets(pace,startDn,count){
 // What a verse needs n plan-days after it was first learned.
 function stage(n,realDn){
   if(n<0)return null;
-  if(n<4)return {kind:'learn',reps:REPS[n],label:(n===0?'New verse':'Still learning')+' · day '+(n+1)+' of 4'};
-  if(n<49)return {kind:'daily',reps:1,label:'Daily review · day '+(n-3)+' of 45'};
-  if(n<=97){return (n-48)%7===0?{kind:'weekly',reps:1,label:'Weekly review · week '+((n-48)/7)+' of 7'}:null;}
-  return dnToDate(realDn).getUTCDate()===1?{kind:'monthly',reps:1,label:'Monthly review'}:null;
+  if(n<4)return {kind:'learn',reps:REPS[n],label:txf(n===0?'New verse · day {a} of 4':'Still learning · day {a} of 4',n+1)};
+  if(n<49)return {kind:'daily',reps:1,label:txf('Daily review · day {a} of 45',n-3)};
+  if(n<=97){return (n-48)%7===0?{kind:'weekly',reps:1,label:txf('Weekly review · week {a} of 7',(n-48)/7)}:null;}
+  return dnToDate(realDn).getUTCDate()===1?{kind:'monthly',reps:1,label:tx('Monthly review')}:null;
 }
 function tasksFor(plans,done,n){
   var out=[],iso=dnToIso(n);
@@ -158,7 +219,7 @@ function parsePaste(ref,trans,text){
   return lines.map(function(t,i){
     var r;
     if(m&&(lines.length===1||(m[3]&&(+m[3]-+m[2]+1)===lines.length)))r=m[1]+':'+(+m[2]+i);
-    else r=lines.length===1?(ref.trim()||'My verse'):(ref.trim()||'My passage')+' (part '+(i+1)+')';
+    else r=lines.length===1?(ref.trim()||tx('My verse')):(ref.trim()||tx('My passage'))+' ('+tx('part')+' '+(i+1)+')';
     return {ref:r,t:t,tr:tag};
   });
 }
@@ -167,30 +228,117 @@ function planTitle(vs){
   if(vs.length===1)return vs[0].ref;
   var a=vs[0].ref,b=vs[vs.length-1].ref,pa=a.slice(0,a.lastIndexOf(':')),pb=b.slice(0,b.lastIndexOf(':'));
   if(a.indexOf(':')>0&&pa===pb)return a+'–'+b.slice(b.lastIndexOf(':')+1);
-  return a+' and '+(vs.length-1)+' more';
+  return txf('{a} and {b} more',a,vs.length-1);
 }
 /*END*/
 var BOOKS='Genesis,Exodus,Leviticus,Numbers,Deuteronomy,Joshua,Judges,Ruth,1 Samuel,2 Samuel,1 Kings,2 Kings,1 Chronicles,2 Chronicles,Ezra,Nehemiah,Esther,Job,Psalms,Proverbs,Ecclesiastes,Song of Solomon,Isaiah,Jeremiah,Lamentations,Ezekiel,Daniel,Hosea,Joel,Amos,Obadiah,Jonah,Micah,Nahum,Habakkuk,Zephaniah,Haggai,Zechariah,Malachi,Matthew,Mark,Luke,John,Acts,Romans,1 Corinthians,2 Corinthians,Galatians,Ephesians,Philippians,Colossians,1 Thessalonians,2 Thessalonians,1 Timothy,2 Timothy,Titus,Philemon,Hebrews,James,1 Peter,2 Peter,1 John,2 John,3 John,Jude,Revelation'.split(',');
+var BOOKS_ES='Génesis,Éxodo,Levítico,Números,Deuteronomio,Josué,Jueces,Rut,1 Samuel,2 Samuel,1 Reyes,2 Reyes,1 Crónicas,2 Crónicas,Esdras,Nehemías,Ester,Job,Salmos,Proverbios,Eclesiastés,Cantares,Isaías,Jeremías,Lamentaciones,Ezequiel,Daniel,Oseas,Joel,Amós,Abdías,Jonás,Miqueas,Nahúm,Habacuc,Sofonías,Hageo,Zacarías,Malaquías,Mateo,Marcos,Lucas,Juan,Hechos,Romanos,1 Corintios,2 Corintios,Gálatas,Efesios,Filipenses,Colosenses,1 Tesalonicenses,2 Tesalonicenses,1 Timoteo,2 Timoteo,Tito,Filemón,Hebreos,Santiago,1 Pedro,2 Pedro,1 Juan,2 Juan,3 Juan,Judas,Apocalipsis'.split(',');
+var BOOK_IDS='GEN,EXO,LEV,NUM,DEU,JOS,JDG,RUT,1SA,2SA,1KI,2KI,1CH,2CH,EZR,NEH,EST,JOB,PSA,PRO,ECC,SNG,ISA,JER,LAM,EZK,DAN,HOS,JOL,AMO,OBA,JON,MIC,NAM,HAB,ZEP,HAG,ZEC,MAL,MAT,MRK,LUK,JHN,ACT,ROM,1CO,2CO,GAL,EPH,PHP,COL,1TH,2TH,1TI,2TI,TIT,PHM,HEB,JAS,1PE,2PE,1JN,2JN,3JN,JUD,REV'.split(',');
 var IMG_A='assets/flow.jpg',IMG_B='assets/ribbon.jpg';
 var KEY='treasured.v1';
-var S={theme:null,still:false,plans:[],reminders:['07:00','07:00','07:00','07:00','07:00','07:00','07:00'],done:{}};
+var S={lang:null,theme:null,still:false,plans:[],reminders:['07:00','07:00','07:00','07:00','07:00','07:00','07:00'],done:{}};
 var UI={tab:'today',hide:{},open:{},wiz:null,cal:null,confirm:null};
 function $(s){return document.querySelector(s);}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);for(var k in o)S[k]=o[k];}}catch(e){}}
+function load(){
+  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);for(var k in o)S[k]=o[k];}}catch(e){}
+  if(!S.lang){var nl='';try{nl=(navigator.language||'').toLowerCase();}catch(e){}S.lang=nl.indexOf('es')===0?'es':'en';}
+  LANG=S.lang;
+}
 function isNative(){return !!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.treasured);}
-function nativeSync(){if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({reminders:S.reminders,active:S.plans.length>0});}catch(e){}}}
+function nativeSync(){if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({reminders:S.reminders,active:S.plans.length>0,lang:S.lang});}catch(e){}}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}nativeSync();}
 var CHECK='<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>';
 
+
+// Flowing gold glitter for the "Flowing gold" background.
+var GL={c:null,ctx:null,p:[],raf:0,w:0,h:0};
+function glitterOn(){
+  var calm=false;try{calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  return S.theme!=='B'&&!S.still&&!calm;
+}
+function glitterSize(){
+  var d=Math.min(window.devicePixelRatio||1,2);GL.w=window.innerWidth;GL.h=window.innerHeight;
+  GL.c.width=GL.w*d;GL.c.height=GL.h*d;GL.ctx.setTransform(d,0,0,d,0,0);
+}
+function glitterNew(anywhere){
+  return {x:Math.random()*GL.w*1.2-GL.w*0.2,y:anywhere?Math.random()*GL.h:-12,r:0.5+Math.random()*1.7,vx:0.06+Math.random()*0.22,vy:0.10+Math.random()*0.32,ph:Math.random()*6.28,sp:0.6+Math.random()*1.8,sway:Math.random()*6.28};
+}
+function glitterInit(){
+  var c=document.getElementById('glitter');if(!c||!c.getContext)return;
+  GL.c=c;GL.ctx=c.getContext('2d');glitterSize();
+  window.addEventListener('resize',glitterSize);
+  for(var i=0;i<150;i++)GL.p.push(glitterNew(true));
+}
+function glitterTick(t){
+  var ctx=GL.ctx;ctx.clearRect(0,0,GL.w,GL.h);
+  if(!glitterOn()){GL.raf=0;return;}
+  for(var i=0;i<GL.p.length;i++){
+    var p=GL.p[i];
+    p.x+=p.vx+Math.sin(t/1500+p.sway)*0.22;p.y+=p.vy;
+    if(p.y>GL.h+12||p.x>GL.w+12)GL.p[i]=p=glitterNew(false);
+    var a=0.2+0.8*(0.5+0.5*Math.sin(t/1000*p.sp+p.ph));
+    ctx.globalAlpha=a*0.2;ctx.fillStyle='#F0C75A';ctx.beginPath();ctx.arc(p.x,p.y,p.r*3.2,0,6.283);ctx.fill();
+    ctx.globalAlpha=a;ctx.fillStyle='#FFF1BF';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  GL.raf=window.requestAnimationFrame(glitterTick);
+}
+function glitterSync(){
+  if(!GL.ctx)return;
+  if(glitterOn()){if(!GL.raf)GL.raf=window.requestAnimationFrame(glitterTick);}
+  else if(!GL.raf)GL.ctx.clearRect(0,0,GL.w,GL.h);
+}
+
+// Flowing silk for the "Silk ribbon" background: the picture is redrawn in thin
+// strips that sway from side to side, so the ribbon ripples like cloth.
+var RB={c:null,ctx:null,img:null,ready:false,raf:0,d:1};
+function ribbonOn(){
+  var calm=false;try{calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  return RB.ready&&S.theme==='B'&&!S.still&&!calm;
+}
+function ribbonSize(){
+  RB.d=Math.min(window.devicePixelRatio||1,1.5);
+  RB.c.width=Math.round(window.innerWidth*RB.d);RB.c.height=Math.round(window.innerHeight*RB.d);
+}
+function ribbonInit(){
+  var c=document.getElementById('ribbon');if(!c||!c.getContext||typeof Image==='undefined')return;
+  RB.c=c;RB.ctx=c.getContext('2d');ribbonSize();
+  window.addEventListener('resize',ribbonSize);
+  RB.img=new Image();
+  RB.img.onload=function(){RB.ready=true;ribbonSync();};
+  RB.img.src=IMG_B;
+}
+function ribbonTick(t){
+  if(!ribbonOn()){RB.raf=0;RB.c.style.display='none';return;}
+  var ctx=RB.ctx,d=RB.d,W=RB.c.width,H=RB.c.height,iw=RB.img.naturalWidth,ih=RB.img.naturalHeight;
+  var sc=Math.max(W/iw,H/ih)*1.08,dw=iw*sc,dx=(W-dw)/2,step=Math.max(2,Math.round(3*d)),s=t/1000;
+  var lift=(1+Math.sin(s*0.5))*5*d;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  for(var y=0;y<H;y+=step){
+    var u=y/d,shift=(9*Math.sin(u/130+s*0.8)+5*Math.sin(u/57-s*1.3))*d;
+    ctx.drawImage(RB.img,0,(y+lift)/sc,iw,(step+1)/sc,dx+shift,y,dw,step+1);
+  }
+  RB.raf=window.requestAnimationFrame(ribbonTick);
+}
+function ribbonSync(){
+  if(!RB.ctx)return;
+  if(ribbonOn()){RB.c.style.display='block';if(!RB.raf)RB.raf=window.requestAnimationFrame(ribbonTick);}
+  else if(!RB.raf)RB.c.style.display='none';
+}
 function applyTheme(){
   document.body.className='theme-'+(S.theme==='B'?'b':'a')+(S.still?' still':'');
+  try{document.documentElement.lang=LANG;}catch(e){}
   var want=S.theme==='B'?IMG_B:IMG_A,im=$('#bgimg');if(im.getAttribute('src')!==want)im.setAttribute('src',want);
+  glitterSync();ribbonSync();
 }
 function themePicker(){
   return '<div class="themes">'+
-   '<button class="themepick'+(S.theme!=='B'?' on':'')+'" data-a="theme" data-v="A" aria-pressed="'+(S.theme!=='B')+'"><img src="'+IMG_A+'" alt=""><div>Flowing gold</div></button>'+
-   '<button class="themepick'+(S.theme==='B'?' on':'')+'" data-a="theme" data-v="B" aria-pressed="'+(S.theme==='B')+'"><img src="'+IMG_B+'" alt=""><div>Silk ribbon</div></button></div>';
+   '<button class="themepick'+(S.theme!=='B'?' on':'')+'" data-a="theme" data-v="A" aria-pressed="'+(S.theme!=='B')+'"><img src="'+IMG_A+'" alt=""><div>'+tx('Flowing gold')+'</div></button>'+
+   '<button class="themepick'+(S.theme==='B'?' on':'')+'" data-a="theme" data-v="B" aria-pressed="'+(S.theme==='B')+'"><img src="'+IMG_B+'" alt=""><div>'+tx('Silk ribbon')+'</div></button></div>';
+}
+function langPicker(){
+  return '<div class="chips"><button class="chip'+(LANG==='en'?' on':'')+'" data-a="lang" data-v="en" aria-pressed="'+(LANG==='en')+'" lang="en">English</button><button class="chip'+(LANG==='es'?' on':'')+'" data-a="lang" data-v="es" aria-pressed="'+(LANG==='es')+'" lang="es">Español</button></div>';
 }
 function render(){
   applyTheme();
@@ -201,14 +349,15 @@ function render(){
     tabs.hidden=false;
     html=UI.tab==='calendar'?viewCalendar():UI.tab==='passages'?viewPassages():UI.tab==='settings'?viewSettings():viewToday();
     var T=[['today','Today','<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>'],['calendar','Calendar','<rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16M9 3v4M15 3v4"></path>'],['passages','Passages','<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M9 9h6M9 13h6"></path>'],['settings','Settings','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle>']];
-    tabs.innerHTML=T.map(function(t){return '<button data-a="tab" data-v="'+t[0]+'" class="'+(UI.tab===t[0]?'on':'')+'"'+(UI.tab===t[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+t[2]+'</svg>'+t[1]+'</button>';}).join('');
+    tabs.innerHTML=T.map(function(x){return '<button data-a="tab" data-v="'+x[0]+'" class="'+(UI.tab===x[0]?'on':'')+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+x[2]+'</svg>'+tx(x[1])+'</button>';}).join('');
   }
   app.innerHTML=html;
 }
 function viewWelcome(){
-  return '<div class="card"><div class="eyebrow red">Welcome</div><h1>Treasured</h1><p style="margin-top:10px">Hide God\'s Word in your heart, a few minutes a day. Pick a passage, choose your pace, and your calendar is built for you.</p></div>'+
-   '<div class="card"><h2>Choose your look</h2><p class="muted">You can change this any time in Settings.</p>'+themePicker()+
-   '<button class="btn wide" data-a="begin">Continue</button></div>';
+  return '<div class="card"><div class="eyebrow red">'+tx('Welcome')+'</div><h1>Treasured</h1><p style="margin-top:10px">'+esc(tx("Bury God's Word deep in your heart, a few minutes a day. Pick a passage, choose your pace, and your calendar is built for you."))+'</p></div>'+
+   '<div class="card"><h2>'+tx('Language')+' / Idioma</h2>'+langPicker()+'</div>'+
+   '<div class="card"><h2>'+tx('Choose your look')+'</h2><p class="muted">'+tx('You can change this any time in Settings.')+'</p>'+themePicker()+
+   '<button class="btn wide" data-a="begin">'+tx('Continue')+'</button></div>';
 }
 function taskCard(t){
   var id=t.key,done=t.count>=t.reps;
@@ -216,31 +365,31 @@ function taskCard(t){
     var hidden=UI.hide[id];
     return '<div class="card float"><div class="row between"><div class="eyebrow red">'+esc(t.label)+'</div><div class="muted" style="font-weight:600">'+esc(t.verse.ref+(t.verse.tr||''))+'</div></div>'+
      '<p class="verse'+(hidden?' hidden':'')+'"'+(hidden?' aria-hidden="true"':'')+'>'+esc(t.verse.t)+'</p>'+
-     '<div class="row" style="margin-bottom:12px"><div><span class="big">'+t.count+'</span> <span class="muted" style="font-weight:600">of '+t.reps+'</span></div><div class="bar"><i style="width:'+Math.round(t.count/t.reps*100)+'%"></i></div></div>'+
-     '<div class="row"><button class="btn grow" data-a="tap" data-k="'+esc(id)+'" data-r="'+t.reps+'"'+(done?' disabled':'')+'>'+(done?'Done for today':'I said it — tap')+'</button>'+
-     '<button class="btn plain small" data-a="hide" data-k="'+esc(id)+'">'+(hidden?'Show':'Hide')+' words</button></div>'+
-     (t.count>0?'<button class="btn small" style="background:none;color:var(--muted);padding:0;margin-top:6px" data-a="undo" data-k="'+esc(id)+'">Undo last tap</button>':'')+'</div>';
+     '<div class="row" style="margin-bottom:12px"><div><span class="big">'+t.count+'</span> <span class="muted" style="font-weight:600">'+tx('of')+' '+t.reps+'</span></div><div class="bar"><i style="width:'+Math.round(t.count/t.reps*100)+'%"></i></div></div>'+
+     '<div class="row"><button class="btn grow" data-a="tap" data-k="'+esc(id)+'" data-r="'+t.reps+'"'+(done?' disabled':'')+'>'+tx(done?'Done for today':'I said it — tap')+'</button>'+
+     '<button class="btn plain small" data-a="hide" data-k="'+esc(id)+'">'+tx(hidden?'Show words':'Hide words')+'</button></div>'+
+     (t.count>0?'<button class="btn small" style="background:none;color:var(--muted);padding:0;margin-top:6px" data-a="undo" data-k="'+esc(id)+'">'+tx('Undo last tap')+'</button>':'')+'</div>';
   }
   var open=UI.open[id];
-  return '<div class="card"><div class="row"><button class="grow" style="border:none;background:none;text-align:left;padding:0;color:inherit" data-a="open" data-k="'+esc(id)+'" aria-expanded="'+!!open+'"><div class="eyebrow">'+esc(t.label)+'</div><div style="font-family:\'Cormorant Garamond\',serif;font-weight:600;font-size:22px">'+esc(t.verse.ref)+'</div><div class="muted">Say it once · tap to '+(open?'hide':'check')+' the words</div></button>'+
-   '<button class="circle'+(done?' on':'')+'" data-a="check" data-k="'+esc(id)+'" aria-label="Mark '+esc(t.verse.ref)+' as said" aria-pressed="'+done+'"><span style="display:flex;stroke:'+(done?'#fff':'#8A6516')+'">'+CHECK+'</span></button></div>'+
+  return '<div class="card"><div class="row"><button class="grow" style="border:none;background:none;text-align:left;padding:0;color:inherit" data-a="open" data-k="'+esc(id)+'" aria-expanded="'+!!open+'"><div class="eyebrow">'+esc(t.label)+'</div><div style="font-family:\'Cormorant Garamond\',serif;font-weight:600;font-size:22px">'+esc(t.verse.ref)+'</div><div class="muted">'+tx(open?'Say it once · tap to hide the words':'Say it once · tap to check the words')+'</div></button>'+
+   '<button class="circle'+(done?' on':'')+'" data-a="check" data-k="'+esc(id)+'" aria-label="'+esc(txf('Mark {a} as said',t.verse.ref))+'" aria-pressed="'+done+'"><span style="display:flex;stroke:'+(done?'#fff':'#8A6516')+'">'+CHECK+'</span></button></div>'+
    (open?'<p class="verse" style="margin-bottom:0">'+esc(t.verse.t)+'</p>':'')+'</div>';
 }
 function viewToday(){
   var n=todayDn(),ts=tasksFor(S.plans,S.done,n),h='';
   var left=ts.filter(function(t){return t.count<t.reps;}).length;
-  h+='<div class="card"><div class="eyebrow">'+fmt(n,true)+'</div><h1>Today\'s practice</h1>'+
-     (S.plans.length?'<p class="muted" style="margin:6px 0 0">'+(ts.length?(left?left+' of '+ts.length+' left today':'All done for today. Well done.'):'Nothing scheduled today. Rest well.')+'</p>':'')+'</div>';
-  if(!S.plans.length)return h+'<div class="card"><h2>Start your first passage</h2><p>Choose a verse or passage and we will build your schedule.</p><button class="btn wide" data-a="newplan">Choose a passage</button></div>';
+  h+='<div class="card"><div class="eyebrow">'+fmt(n,true)+'</div><h1>'+esc(tx("Today's practice"))+'</h1>'+
+     (S.plans.length?'<p class="muted" style="margin:6px 0 0">'+(ts.length?(left?txf('{a} of {b} left today',left,ts.length):tx('All done for today. Well done.')):tx('Nothing scheduled today. Rest well.'))+'</p>':'')+'<div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn plain small" data-a="lang" data-v="'+(LANG==='es'?'en':'es')+'" lang="'+(LANG==='es'?'en':'es')+'">'+(LANG==='es'?'English':'Español')+'</button><button class="btn plain small" data-a="theme" data-v="'+(S.theme==='B'?'A':'B')+'">'+tx('Switch background')+'</button></div></div>';
+  if(!S.plans.length)return h+'<div class="card"><h2>'+tx('Start your first passage')+'</h2><p>'+tx('Choose a verse or passage and we will build your schedule.')+'</p><button class="btn wide" data-a="newplan">'+tx('Choose a passage')+'</button></div>';
   var missed=tasksFor(S.plans,S.done,n-1).filter(function(t){return t.kind==='learn'&&t.count<t.reps;});
-  if(missed.length)h+='<div class="card"><div class="eyebrow red">Missed yesterday?</div><p style="margin-top:6px">No guilt. Slide your whole schedule forward one day and pick up where you left off.</p><button class="btn ghost small" data-a="shift" data-from="'+dnToIso(n-1)+'">Move my schedule forward</button></div>';
+  if(missed.length)h+='<div class="card"><div class="eyebrow red">'+tx('Missed yesterday?')+'</div><p style="margin-top:6px">'+tx('No guilt. Slide your whole schedule forward one day and pick up where you left off.')+'</p><button class="btn ghost small" data-a="shift" data-from="'+dnToIso(n-1)+'">'+tx('Move my schedule forward')+'</button></div>';
   return h+ts.map(taskCard).join('');
 }
 function viewCalendar(){
   var t=todayDn();
   if(!UI.cal){var d=dnToDate(t);UI.cal={y:d.getUTCFullYear(),m:d.getUTCMonth(),sel:t};}
   var c=UI.cal,first=dn(c.y,c.m,1),lead=dnToDate(first).getUTCDay(),len=dn(c.y,c.m+1,1)-first,cells='';
-  for(var i=0;i<7;i++)cells+='<div class="wd">'+WD[i]+'</div>';
+  for(var i=0;i<7;i++)cells+='<div class="wd">'+wd(i)+'</div>';
   for(i=0;i<lead;i++)cells+='<div></div>';
   for(i=0;i<len;i++){
     var n=first+i,ts=tasksFor(S.plans,S.done,n),cls='day';
@@ -250,84 +399,87 @@ function viewCalendar(){
     cells+='<button class="'+cls+'" data-a="pick" data-n="'+n+'" aria-label="'+fmt(n,true)+'"><b>'+(i+1)+'</b><i></i></button>';
   }
   var sel=tasksFor(S.plans,S.done,c.sel),w=dnToDate(c.sel).getUTCDay();
-  var list=sel.length?sel.map(function(x){return '<div class="item"><div class="grow"><b>'+esc(x.verse.ref)+'</b><div class="muted">'+esc(x.label)+'</div></div><div class="muted" style="font-weight:700">× '+x.reps+'</div></div>';}).join(''):'<p class="muted">Nothing scheduled.</p>';
-  return '<div class="card"><div class="row between"><button class="btn plain small" data-a="mon" data-v="-1" aria-label="Previous month">‹</button><h1 style="font-size:28px">'+MO[c.m]+' '+c.y+'</h1><button class="btn plain small" data-a="mon" data-v="1" aria-label="Next month">›</button></div>'+
-   '<div class="cal">'+cells+'</div><div class="legend"><span>● New verse</span><span>◯ gold ring: completed</span><span>Filled: today</span></div></div>'+
-   '<div class="card"><div class="eyebrow">'+fmt(c.sel,true)+'</div><div style="margin-top:6px">'+list+'</div><p class="muted" style="margin:10px 0 0">Reminder time on '+WDL[w]+'s: '+esc(S.reminders[w])+'</p></div>';
+  var list=sel.length?sel.map(function(x){return '<div class="item"><div class="grow"><b>'+esc(x.verse.ref)+'</b><div class="muted">'+esc(x.label)+'</div></div><div class="muted" style="font-weight:700">× '+x.reps+'</div></div>';}).join(''):'<p class="muted">'+tx('Nothing scheduled.')+'</p>';
+  return '<div class="card"><div class="row between"><button class="btn plain small" data-a="mon" data-v="-1" aria-label="'+tx('Previous month')+'">‹</button><h1 style="font-size:28px;text-transform:capitalize">'+mo(c.m)+' '+c.y+'</h1><button class="btn plain small" data-a="mon" data-v="1" aria-label="'+tx('Next month')+'">›</button></div>'+
+   '<div class="cal">'+cells+'</div><div class="legend"><span>● '+tx('New verse')+'</span><span>◯ '+tx('gold ring: completed')+'</span><span>'+tx('Filled: today')+'</span></div></div>'+
+   '<div class="card"><div class="eyebrow">'+fmt(c.sel,true)+'</div><div style="margin-top:6px">'+list+'</div><p class="muted" style="margin:10px 0 0">'+txf('Reminder time on {a}s: ',wdl(w))+esc(S.reminders[w])+'</p></div>';
 }
-function paceText(p){return p.type==='weekdays'?'On '+p.days.map(function(d){return WD[d];}).join(', '):p.n===1?'Every day':p.n===7?'Once a week':'Every '+p.n+' days';}
+function paceText(p){return p.type==='weekdays'?txf('On {a}',p.days.map(function(d){return wd(d);}).join(', ')):p.n===1?tx('Every day'):p.n===7?tx('Once a week'):txf('Every {a} days',p.n);}
 function viewPassages(){
   var t=todayDn();
-  var h='<div class="card"><h1>Passages</h1><p class="muted" style="margin:6px 0 12px">Everything you are memorizing.</p><button class="btn wide" data-a="newplan">Add a verse or passage</button></div>';
+  var h='<div class="card"><h1>'+tx('Passages')+'</h1><p class="muted" style="margin:6px 0 12px">'+tx('Everything you are memorizing.')+'</p><button class="btn wide" data-a="newplan">'+tx('Add a verse or passage')+'</button></div>';
   S.plans.forEach(function(p){
-    var pd=planDay(p,t),started=p.offsets.filter(function(o){return pd!==null&&o<=pd;}).length;
-    if(pd===null&&t>isoToDn(p.start))started=p.offsets.filter(function(o){return dateOfPlanDay(p,o)<=t;}).length;
-    h+='<div class="card"><h2>'+esc(p.title)+'</h2><p class="muted">'+started+' of '+p.verses.length+' verses started · '+paceText(p.pace)+' · began '+fmt(isoToDn(p.start))+'</p>'+
-     '<div class="row" style="flex-wrap:wrap"><button class="btn ghost small" data-a="shift" data-id="'+p.id+'" data-from="'+dnToIso(t)+'">Take a rest day today</button>'+
-     (UI.confirm===p.id?'<span class="muted">Delete this passage and its progress?</span><button class="btn small" data-a="del" data-id="'+p.id+'">Yes, delete</button><button class="btn plain small" data-a="nodel">Keep</button>':'<button class="btn plain small" data-a="askdel" data-id="'+p.id+'">Delete</button>')+'</div></div>';
+    var started=p.offsets.filter(function(o){return dateOfPlanDay(p,o)<=t;}).length;
+    h+='<div class="card"><h2>'+esc(p.title)+'</h2><p class="muted">'+txf('{a} of {b} verses started',started,p.verses.length)+' · '+paceText(p.pace)+' · '+txf('began {a}',fmt(isoToDn(p.start)))+'</p>'+
+     '<div class="row" style="flex-wrap:wrap"><button class="btn ghost small" data-a="shift" data-id="'+p.id+'" data-from="'+dnToIso(t)+'">'+tx('Take a rest day today')+'</button>'+
+     (UI.confirm===p.id?'<span class="muted">'+tx('Delete this passage and its progress?')+'</span><button class="btn small" data-a="del" data-id="'+p.id+'">'+tx('Yes, delete')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button>':'<button class="btn plain small" data-a="askdel" data-id="'+p.id+'">'+tx('Delete')+'</button>')+'</div></div>';
   });
   return h;
 }
-function viewSettings(){
+function reminderRows(){
   var rows='';
-  for(var i=0;i<7;i++)rows+='<div class="row between" style="margin-bottom:8px"><label for="r'+i+'" style="margin:0;font-size:15px;color:var(--ink)">'+WDL[i]+'</label><input id="r'+i+'" type="time" data-c="rem" data-i="'+i+'" value="'+esc(S.reminders[i])+'" style="width:140px"></div>';
-  return '<div class="card"><h1>Settings</h1></div>'+
-   '<div class="card"><h2>Background</h2>'+themePicker()+'<button class="choice'+(S.still?' on':'')+'" data-a="still" aria-pressed="'+!!S.still+'">Still mode<span>'+(S.still?'motion off':'motion on')+'</span></button></div>'+
-   '<div class="card"><h2>Reminder times</h2><p class="muted">'+(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+rows+'</div>'+
-   '<div class="card"><h2>About</h2><p class="muted">Scripture from the King James Version, which is in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.</p>'+
-   (UI.confirm==='reset'?'<p>Erase all passages and progress on this device?</p><div class="row"><button class="btn small" data-a="reset">Yes, erase</button><button class="btn plain small" data-a="nodel">Keep</button></div>':'<button class="btn plain small" data-a="askreset">Erase everything</button>')+'</div>';
+  for(var i=0;i<7;i++)rows+='<div class="row between" style="margin-bottom:8px"><label for="r'+i+'" style="margin:0;font-size:15px;color:var(--ink);text-transform:capitalize">'+wdl(i)+'</label><input id="r'+i+'" type="time" data-c="rem" data-i="'+i+'" value="'+esc(S.reminders[i])+'" style="width:140px"></div>';
+  return rows;
 }
-function newWiz(){return {step:1,src:'kjv',book:'Colossians',ch:'3',from:'1',to:'',ref:'',tr:'',text:'',verses:[],start:dnToIso(todayDn()),pace:{type:'every',n:2},days:[1,3,5],msg:'',busy:false};}
+function viewSettings(){
+  return '<div class="card"><h1>'+tx('Settings')+'</h1></div>'+
+   '<div class="card"><h2>'+tx('Language')+'</h2>'+langPicker()+'</div>'+
+   '<div class="card"><h2>'+tx('Background')+'</h2>'+themePicker()+'<button class="choice'+(S.still?' on':'')+'" data-a="still" aria-pressed="'+!!S.still+'">'+tx('Still mode')+'<span>'+tx(S.still?'motion off':'motion on')+'</span></button></div>'+
+   '<div class="card"><h2>'+tx('Reminder times')+'</h2><p class="muted">'+tx(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+reminderRows()+'</div>'+
+   '<div class="card"><h2>'+tx('About')+'</h2><p class="muted">'+tx('Scripture from the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+'</p>'+
+   (UI.confirm==='reset'?'<p>'+tx('Erase all passages and progress on this device?')+'</p><div class="row"><button class="btn small" data-a="reset">'+tx('Yes, erase')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="askreset">'+tx('Erase everything')+'</button>')+'</div>';
+}
+function newWiz(){return {step:1,src:'kjv',book:'50',ch:'3',from:'1',to:'',ref:'',tr:'',text:'',verses:[],start:dnToIso(todayDn()),pace:{type:'every',n:2},days:[1,3,5],msg:'',busy:false};}
 function syncWiz(){
   var W=UI.wiz;if(!W)return;
   ['book','ch','from','to','ref','tr','text','start'].forEach(function(k){var el=document.getElementById('w_'+k);if(el)W[k]=el.value;});
 }
 function wizPace(){var W=UI.wiz;return W.pace.type==='weekdays'?{type:'weekdays',days:W.days.slice().sort()}:{type:'every',n:W.pace.n};}
 function viewWizard(){
-  var W=UI.wiz,dots='',body='',i;
+  var W=UI.wiz,dots='',body='',i,names=LANG==='es'?BOOKS_ES:BOOKS;
   for(i=1;i<=5;i++)dots+='<i class="'+(i<=W.step?'on':'')+'"></i>';
-  var head='<div class="card"><div class="row between"><div class="eyebrow">Step '+W.step+' of 5</div><button class="btn plain small" data-a="wcancel">Cancel</button></div><div class="steps">'+dots+'</div>';
+  var head='<div class="card"><div class="row between"><div class="eyebrow">'+txf('Step {a} of 5',W.step)+'</div><button class="btn plain small" data-a="wcancel">'+tx('Cancel')+'</button></div><div class="steps">'+dots+'</div>';
+  function nav(){return '<div class="row"><button class="btn plain" data-a="wback">'+tx('Back')+'</button><button class="btn dark grow" data-a="wnext">'+tx('Continue')+'</button></div>';}
   if(W.step===1){
-    body=head+'<h1>What would you like to memorize?</h1></div><div class="card"><div class="chips"><button class="chip'+(W.src==='kjv'?' on':'')+'" data-a="wsrc" data-v="kjv" aria-pressed="'+(W.src==='kjv')+'">King James Version</button><button class="chip'+(W.src==='paste'?' on':'')+'" data-a="wsrc" data-v="paste" aria-pressed="'+(W.src==='paste')+'">Paste my own</button></div>';
+    body=head+'<h1>'+tx('What would you like to memorize?')+'</h1></div><div class="card"><div class="chips"><button class="chip'+(W.src==='kjv'?' on':'')+'" data-a="wsrc" data-v="kjv" aria-pressed="'+(W.src==='kjv')+'">'+tx('King James Version')+'</button><button class="chip'+(W.src==='paste'?' on':'')+'" data-a="wsrc" data-v="paste" aria-pressed="'+(W.src==='paste')+'">'+tx('Paste my own')+'</button></div>';
     if(W.src==='kjv'){
-      body+='<label for="w_book">Book</label><select id="w_book">'+BOOKS.map(function(b){return '<option'+(b===W.book?' selected':'')+'>'+b+'</option>';}).join('')+'</select>'+
-       '<div class="grid3"><div><label for="w_ch">Chapter</label><input id="w_ch" inputmode="numeric" value="'+esc(W.ch)+'"></div><div><label for="w_from">From verse</label><input id="w_from" inputmode="numeric" value="'+esc(W.from)+'"></div><div><label for="w_to">To verse</label><input id="w_to" inputmode="numeric" placeholder="optional" value="'+esc(W.to)+'"></div></div>'+
-       '<button class="btn ghost wide" style="margin-top:14px" data-a="wfetch"'+(W.busy?' disabled':'')+'>'+(W.busy?'Looking up…':'Add these verses')+'</button>';
+      body+='<label for="w_book">'+tx('Book')+'</label><select id="w_book">'+names.map(function(b,j){return '<option value="'+j+'"'+(String(j)===String(W.book)?' selected':'')+'>'+b+'</option>';}).join('')+'</select>'+
+       '<div class="grid3"><div><label for="w_ch">'+tx('Chapter')+'</label><input id="w_ch" inputmode="numeric" value="'+esc(W.ch)+'"></div><div><label for="w_from">'+tx('From verse')+'</label><input id="w_from" inputmode="numeric" value="'+esc(W.from)+'"></div><div><label for="w_to">'+tx('To verse')+'</label><input id="w_to" inputmode="numeric" placeholder="'+tx('optional')+'" value="'+esc(W.to)+'"></div></div>'+
+       '<button class="btn ghost wide" style="margin-top:14px" data-a="wfetch"'+(W.busy?' disabled':'')+'>'+tx(W.busy?'Looking up…':'Add these verses')+'</button>';
     }else{
-      body+='<label for="w_ref">Reference</label><input id="w_ref" placeholder="Colossians 3:1-17" value="'+esc(W.ref)+'"><label for="w_tr">Translation (optional)</label><input id="w_tr" placeholder="LSB, NASB, ESV…" value="'+esc(W.tr)+'">'+
-       '<label for="w_text">Verses, one per line</label><textarea id="w_text" placeholder="Paste or type each verse on its own line">'+esc(W.text)+'</textarea>'+
-       '<button class="btn ghost wide" style="margin-top:14px" data-a="wpaste">Add these verses</button>';
+      body+='<label for="w_ref">'+tx('Reference')+'</label><input id="w_ref" placeholder="'+tx('Colossians 3:1-17')+'" value="'+esc(W.ref)+'"><label for="w_tr">'+tx('Translation (optional)')+'</label><input id="w_tr" placeholder="'+tx('LSB, NASB, ESV…')+'" value="'+esc(W.tr)+'">'+
+       '<label for="w_text">'+tx('Verses, one per line')+'</label><textarea id="w_text" placeholder="'+tx('Paste or type each verse on its own line')+'">'+esc(W.text)+'</textarea>'+
+       '<button class="btn ghost wide" style="margin-top:14px" data-a="wpaste">'+tx('Add these verses')+'</button>';
     }
     if(W.msg)body+='<div class="msg" role="status">'+esc(W.msg)+'</div>';
     body+='</div>';
     if(W.verses.length){
-      body+='<div class="card"><div class="eyebrow">Your list · '+W.verses.length+' verse'+(W.verses.length>1?'s':'')+'</div>'+W.verses.map(function(v,j){return '<div class="item"><div class="grow"><b>'+esc(v.ref)+'</b><div class="muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(v.t)+'</div></div><button class="x" data-a="wrm" data-i="'+j+'" aria-label="Remove '+esc(v.ref)+'">×</button></div>';}).join('')+
-       '<p class="muted" style="margin-top:8px">Add more from anywhere in the Bible, or continue.</p></div>';
+      body+='<div class="card"><div class="eyebrow">'+tx('Your list')+' · '+pv(W.verses.length)+'</div>'+W.verses.map(function(v,j){return '<div class="item"><div class="grow"><b>'+esc(v.ref)+'</b><div class="muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(v.t)+'</div></div><button class="x" data-a="wrm" data-i="'+j+'" aria-label="'+esc(txf('Remove {a}',v.ref))+'">×</button></div>';}).join('')+
+       '<p class="muted" style="margin-top:8px">'+tx('Add more from anywhere in the Bible, or continue.')+'</p></div>';
     }
-    body+='<button class="btn dark wide" data-a="wnext"'+(W.verses.length?'':' disabled')+'>Continue</button>';
+    body+='<button class="btn dark wide" data-a="wnext"'+(W.verses.length?'':' disabled')+'>'+tx('Continue')+'</button>';
   }else if(W.step===2){
-    body=head+'<h1>When would you like to start?</h1></div><div class="card"><label for="w_start">Start date</label><input id="w_start" type="date" value="'+esc(W.start)+'"><p class="muted" style="margin-top:10px">Your first verse begins on this day.</p></div>'+nav();
+    body=head+'<h1>'+tx('When would you like to start?')+'</h1></div><div class="card"><label for="w_start">'+tx('Start date')+'</label><input id="w_start" type="date" value="'+esc(W.start)+'"><p class="muted" style="margin-top:10px">'+tx('Your first verse begins on this day.')+'</p></div>'+nav();
   }else if(W.step===3){
     var opts=[[1,'Every day','fastest'],[2,'Every 2 days',''],[3,'Every 3 days',''],[7,'Once a week','gentlest']];
-    body=head+'<h1>How often would you like a new verse?</h1><p class="muted" style="margin-top:8px">'+esc(planTitle(W.verses))+' · '+W.verses.length+' verse'+(W.verses.length>1?'s':'')+'</p></div><div class="card">'+
-     opts.map(function(o){var on=W.pace.type==='every'&&W.pace.n===o[0];return '<button class="choice'+(on?' on':'')+'" data-a="wpace" data-n="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'<span>'+o[2]+'</span></button>';}).join('')+
-     '<button class="choice'+(W.pace.type==='weekdays'?' on':'')+'" data-a="wpace" data-n="0" aria-pressed="'+(W.pace.type==='weekdays')+'">Choose weekdays<span>e.g. Mon · Wed · Fri</span></button>'+
-     (W.pace.type==='weekdays'?'<div class="chips">'+WD.map(function(d,j){var on=W.days.indexOf(j)>=0;return '<button class="chip'+(on?' on':'')+'" data-a="wday" data-i="'+j+'" aria-pressed="'+on+'">'+d+'</button>';}).join('')+'</div>':'')+'</div>'+nav();
+    body=head+'<h1>'+tx('How often would you like a new verse?')+'</h1><p class="muted" style="margin-top:8px">'+esc(planTitle(W.verses))+' · '+pv(W.verses.length)+'</p></div><div class="card">'+
+     opts.map(function(o){var on=W.pace.type==='every'&&W.pace.n===o[0];return '<button class="choice'+(on?' on':'')+'" data-a="wpace" data-n="'+o[0]+'" aria-pressed="'+on+'">'+tx(o[1])+'<span>'+(o[2]?tx(o[2]):'')+'</span></button>';}).join('')+
+     '<button class="choice'+(W.pace.type==='weekdays'?' on':'')+'" data-a="wpace" data-n="0" aria-pressed="'+(W.pace.type==='weekdays')+'">'+tx('Choose weekdays')+'<span>'+tx('e.g. Mon · Wed · Fri')+'</span></button>'+
+     (W.pace.type==='weekdays'?'<div class="chips">'+[0,1,2,3,4,5,6].map(function(j){var on=W.days.indexOf(j)>=0;return '<button class="chip'+(on?' on':'')+'" data-a="wday" data-i="'+j+'" aria-pressed="'+on+'" style="text-transform:capitalize">'+wd(j)+'</button>';}).join('')+'</div>':'')+'</div>'+nav();
   }else if(W.step===4){
-    var rows='';
-    for(i=0;i<7;i++)rows+='<div class="row between" style="margin-bottom:8px"><label for="r'+i+'" style="margin:0;font-size:15px;color:var(--ink)">'+WDL[i]+'</label><input id="r'+i+'" type="time" data-c="rem" data-i="'+i+'" value="'+esc(S.reminders[i])+'" style="width:140px"></div>';
-    body=head+'<h1>When should we remind you?</h1></div><div class="card"><p class="muted">'+(isNative()?'Pick a time for each day. Each reminder has buttons to snooze for 1, 2 or 3 hours.':'Pick a time for each day. Reminders with a snooze button arrive with the iPhone version; for now these times show on your calendar.')+'</p>'+rows+'</div>'+nav();
+    body=head+'<h1>'+tx('When should we remind you?')+'</h1></div><div class="card"><p class="muted">'+tx(isNative()?'Pick a time for each day. Each reminder has buttons to snooze for 1, 2 or 3 hours.':'Pick a time for each day. Reminders with a snooze button arrive with the iPhone version; for now these times show on your calendar.')+'</p>'+reminderRows()+'</div>'+nav();
   }else{
-    var tmp={start:W.start,shifts:[]},off=buildOffsets(wizPace(),isoToDn(W.start),W.verses.length),s0=isoToDn(W.start);
-    var lines=W.verses.slice(0,6).map(function(v,j){return '<div class="item"><div class="grow"><b>'+esc(v.ref)+'</b></div><div class="muted">starts '+fmt(s0+off[j])+'</div></div>';}).join('');
-    body=head+'<h1>Your plan</h1></div><div class="card"><h2>'+esc(planTitle(W.verses))+'</h2><p class="muted">'+paceText(wizPace())+' · each new verse: 25, 20, 15, then 10 times over four days, then a short daily review.</p>'+lines+
-     (W.verses.length>6?'<p class="muted" style="margin-top:8px">…and '+(W.verses.length-6)+' more.</p>':'')+
-     '<p style="margin-top:12px"><b>Last new verse: '+fmt(s0+off[off.length-1],true)+'</b></p></div><div class="row"><button class="btn plain" data-a="wback">Back</button><button class="btn grow" data-a="wdone">Start my plan</button></div>';
+    var off=buildOffsets(wizPace(),isoToDn(W.start),W.verses.length),s0=isoToDn(W.start);
+    var lines=W.verses.slice(0,6).map(function(v,j){return '<div class="item"><div class="grow"><b>'+esc(v.ref)+'</b></div><div class="muted">'+txf('starts {a}',fmt(s0+off[j]))+'</div></div>';}).join('');
+    body=head+'<h1>'+tx('Your plan')+'</h1></div><div class="card"><h2>'+esc(planTitle(W.verses))+'</h2><p class="muted">'+paceText(wizPace())+' · '+tx('each new verse: 25, 20, 15, then 10 times over four days, then a short daily review.')+'</p>'+lines+
+     (W.verses.length>6?'<p class="muted" style="margin-top:8px">'+txf('…and {a} more.',W.verses.length-6)+'</p>':'')+
+     '<p style="margin-top:12px"><b>'+tx('Last new verse:')+' '+fmt(s0+off[off.length-1],true)+'</b></p></div><div class="row"><button class="btn plain" data-a="wback">'+tx('Back')+'</button><button class="btn grow" data-a="wdone">'+tx('Start my plan')+'</button></div>';
   }
   return body;
-  function nav(){return '<div class="row"><button class="btn plain" data-a="wback">Back</button><button class="btn dark grow" data-a="wnext">Continue</button></div>';}
 }
+function getJson(url){return fetch(url).then(function(r){if(!r.ok)throw new Error('x');return r.json();});}
 var ACT={
+  lang:function(d){S.lang=d.v;LANG=d.v;save();},
   theme:function(d){S.theme=d.v;save();},
   begin:function(){if(!S.theme)S.theme='A';S.welcomed=true;save();if(!S.plans.length)UI.wiz=newWiz();},
   tab:function(d){UI.tab=d.v;UI.confirm=null;window.scrollTo(0,0);},
@@ -347,19 +499,26 @@ var ACT={
   wcancel:function(){UI.wiz=null;},
   wsrc:function(d){UI.wiz.src=d.v;UI.wiz.msg='';},
   wrm:function(d){UI.wiz.verses.splice(+d.i,1);},
-  wpaste:function(){var W=UI.wiz;if(!W.text.trim()){W.msg='Type or paste at least one verse first.';return;}W.verses=W.verses.concat(parsePaste(W.ref,W.tr,W.text));W.text='';W.ref='';W.msg='Added.';},
+  wpaste:function(){var W=UI.wiz;if(!W.text.trim()){W.msg=tx('Type or paste at least one verse first.');return;}W.verses=W.verses.concat(parsePaste(W.ref,W.tr,W.text));W.text='';W.ref='';W.msg=tx('Added.');},
   wfetch:function(){
-    var W=UI.wiz,ch=parseInt(W.ch,10),a=parseInt(W.from,10),b=parseInt(W.to,10);
-    if(!ch||!a){W.msg='Enter a chapter and a starting verse.';return;}
+    var W=UI.wiz,bi=parseInt(W.book,10)||0,ch=parseInt(W.ch,10),a=parseInt(W.from,10),b=parseInt(W.to,10);
+    if(!ch||!a){W.msg=tx('Enter a chapter and a starting verse.');return;}
     if(!b||b<a)b=a;
-    var ref=W.book+' '+ch+':'+a+(b>a?'-'+b:'');
+    var es=LANG==='es',code=es?'rv1909':'kjv',tag=es?' · RV1909':' · KJV',name=(es?BOOKS_ES:BOOKS)[bi];
+    var shown=name+' '+ch+':'+a+(b>a?'-'+b:'');
+    function clean(v){return {ref:name+' '+ch+':'+v.verse,t:String(v.text).replace(/\s+/g,' ').trim(),tr:tag};}
     W.busy=true;W.msg='';
-    fetch('https://bible-api.com/'+encodeURIComponent(ref)+'?translation=kjv').then(function(r){if(!r.ok)throw new Error('x');return r.json();}).then(function(j){
+    // First try the chapter address; if that fails, try the older reference address.
+    getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+ch).then(function(j){
+      var vs=(j.verses||[]).filter(function(v){return +v.verse>=a&&+v.verse<=b;}).map(clean);
+      if(!vs.length)throw new Error('x');return vs;
+    }).catch(function(){
+      return getJson('https://bible-api.com/'+encodeURIComponent(BOOKS[bi]+' '+ch+':'+a+(b>a?'-'+b:''))+'?translation='+code).then(function(j){
+        var vs=(j.verses||[]).map(clean);if(!vs.length)throw new Error('x');return vs;});
+    }).then(function(vs){
       if(!UI.wiz)return;
-      var vs=(j.verses||[]).map(function(v){return {ref:W.book+' '+v.chapter+':'+v.verse,t:String(v.text).replace(/\s+/g,' ').trim(),tr:' · KJV'};});
-      if(!vs.length)throw new Error('x');
-      W.verses=W.verses.concat(vs);W.busy=false;W.msg='Added '+vs.length+' verse'+(vs.length>1?'s':'')+'.';render();
-    }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=ref;W.tr='KJV';W.msg='The King James text could not be reached from here. Paste the verses below instead.';render();});
+      W.verses=W.verses.concat(vs);W.busy=false;W.msg=txf('Added {a}.',pv(vs.length));render();
+    }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=shown;W.tr=es?'RV1909':'KJV';W.msg=tx('The Bible text could not be reached from here. Paste the verses below instead.');render();});
   },
   wnext:function(){var W=UI.wiz;if(W.step===1&&!W.verses.length)return;if(W.step===2&&!/^\d{4}-\d\d-\d\d$/.test(W.start))W.start=dnToIso(todayDn());if(W.step===3&&W.pace.type==='weekdays'&&!W.days.length)W.days=[1,3,5];W.step++;W.msg='';window.scrollTo(0,0);},
   wback:function(){UI.wiz.step--;window.scrollTo(0,0);},
@@ -376,7 +535,7 @@ document.addEventListener('click',function(e){
 document.addEventListener('change',function(e){
   var el=e.target;if(el.dataset&&el.dataset.c==='rem'){S.reminders[+el.dataset.i]=el.value||'07:00';save();}
 });
-load();render();
+load();glitterInit();ribbonInit();render();
 </script>
 </body>
 </html>
