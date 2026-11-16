@@ -1,4 +1,6 @@
-# Treasured
+# Sword of the Word
+
+(First called Treasured; the folder, Xcode project and repository still use that name.)
 
 A Scripture memory app. A new verse is said 25, 20, 15 and 10 times over its first four days,
 then once a day for 45 days, once a week for 7 weeks, and on the first of each month after that.
@@ -6,12 +8,13 @@ then once a day for 45 days, once a week for 7 weeks, and on the first of each m
 ## What is in this folder
 
 - `UPLOAD-TO-GITHUB/` is everything that goes on GitHub: the app itself (`index.html` plus the
-  `assets` folder with two background images) and two notes files (`README.md`, `CLAUDE.md`).
+  `assets` folder with the background pictures) and two notes files (`README.md`, `CLAUDE.md`).
   Upload all four items; every file in it is the latest version.
 - `ios/` is the iPhone version. It stays on the Mac and is not uploaded to GitHub. Open `ios/Treasured.xcodeproj` in Xcode and press the Play button.
   - `ios/Treasured/index.html` is the same page as `UPLOAD-TO-GITHUB/index.html` with the two images built in.
   - `ios/Treasured/TreasuredApp.swift` shows that page and adds daily reminders with
-    snooze buttons (1, 2 or 3 hours).
+    a Snooze button that opens hour and minute dials.
+  - `ios/Treasured/chime.wav` is the reminder sound.
 
 ## Changing the app later
 
