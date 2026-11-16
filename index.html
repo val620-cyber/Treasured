@@ -23,11 +23,24 @@ body{font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:#fff
 .still #bg img,.still .card{animation:none!important}
 @media (prefers-reduced-motion:reduce){#bg img,.card{animation:none!important}}
 #glitter{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
-main{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:28px 16px 120px}
-.theme-b main{padding-top:200px}
+main{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:28px 16px calc(100vh - 70px)}
+.theme-b .card.hero{background:none;border:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;padding:2px 6px 0;margin-bottom:12px}
+.theme-b .hero h1{font-size:40px;text-shadow:0 0 14px rgba(255,255,255,.95),0 0 3px rgba(255,255,255,.9)}
+.theme-b .hero .eyebrow,.theme-b .hero p{text-shadow:0 0 10px #fff,0 0 3px #fff}
+.theme-b .hero .muted{color:#2c2826;font-weight:600;font-size:15px}
+.theme-b .hero .btn.plain{background:#fff;border:none;box-shadow:0 6px 16px rgba(22,20,19,.16),0 1px 3px rgba(22,20,19,.12)}
+.theme-b .btn{min-height:44px;font-size:15px}
+.theme-b .btn.small{min-height:38px;padding:0 14px;font-size:13px}
+.theme-b .card h2{font-weight:700}
+.theme-b .card .muted{color:#3a3532;font-weight:500}
+.theme-b .verse{font-weight:700}
 .card{border-radius:22px;padding:16px 18px;margin-bottom:14px}
 .theme-a .card{background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(226,178,74,.95);box-shadow:0 22px 44px rgba(48,2,6,.36),0 4px 10px rgba(48,2,6,.2),inset 0 1px 0 rgba(255,255,255,.9)}
-.theme-b .card{background:rgba(255,255,255,.97);border:1px solid #E7E0D8;box-shadow:0 20px 40px rgba(22,20,19,.16),0 3px 8px rgba(22,20,19,.1)}
+.theme-b .card{background:rgba(255,255,255,.26);-webkit-backdrop-filter:blur(5px) saturate(1.2);backdrop-filter:blur(5px) saturate(1.2);border:1px solid rgba(255,255,255,.5);box-shadow:0 6px 18px rgba(22,20,19,.08);text-shadow:0 0 7px rgba(255,255,255,.75)}
+.theme-b .card .btn,.theme-b .card input,.theme-b .card select{text-shadow:none}
+.theme-b .card.bare{background:none;border:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;margin-bottom:24px;animation:none}
+.theme-b .card.bare{padding:0 6px}
+.theme-b .card.bare p,.theme-b .card.bare .eyebrow{text-shadow:0 0 10px #fff,0 0 3px #fff}
 .card.float{animation:floaty 8s ease-in-out infinite alternate}
 h1{margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;line-height:1.1}
 h2{margin:0 0 8px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;line-height:1.2}
@@ -85,10 +98,16 @@ textarea{min-height:260px;line-height:1.4}
 .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #EEE8E1}
 .item:first-child{border-top:none}
 .x{width:44px;height:44px;border:none;background:none;color:var(--muted);font-size:22px;flex:none}
+.cheerbg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:6;background:rgba(22,20,19,.3);display:flex;align-items:center;justify-content:center;padding:24px}
+.cheer{width:100%;max-width:330px;background:#fff;border-radius:28px;padding:26px 24px 22px;text-align:center;box-shadow:0 24px 60px rgba(22,20,19,.35);border:1.5px solid rgba(226,178,74,.9);animation:cheerpop .35s ease-out}
+.cheer .star{font-size:30px;line-height:1;color:var(--gold);margin-bottom:6px}
+.cheer h1{color:var(--red);font-size:34px}
+.cheer p{margin:10px 0 0;font-size:16px}
+@keyframes cheerpop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 .msg{padding:10px 12px;border-radius:12px;background:#FBF3DC;color:#4A3A0C;font-size:14px;margin:10px 0}
 #tabs{position:fixed;z-index:2;left:50%;transform:translateX(-50%);bottom:16px;width:calc(100% - 32px);max-width:448px;height:66px;border-radius:33px;display:flex;align-items:center;justify-content:space-around;padding:0 6px}
 .theme-a #tabs{background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(226,178,74,.95);box-shadow:0 14px 30px rgba(48,2,6,.35)}
-.theme-b #tabs{background:#fff;border:1px solid #E7E0D8;box-shadow:0 14px 30px rgba(22,20,19,.18)}
+.theme-b #tabs{background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid #E7E0D8;box-shadow:0 14px 30px rgba(22,20,19,.18)}
 #tabs[hidden]{display:none}
 #tabs button{flex:1;min-width:0;height:52px;padding:0;border:none;background:none;color:var(--muted);font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
 #tabs button.on{color:var(--red);font-weight:700}
@@ -127,7 +146,7 @@ var MO_ES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','se
 var REPS=[25,20,15,10];
 var ES={
  'Today':'Hoy','Calendar':'Calendario','Passages':'Pasajes','Settings':'Ajustes',
- 'Flowing gold':'Oro fluido','Silk ribbon':'Cinta de seda',
+ 'Flowing gold':'Oro fluido','Sword and shield':'Espada y escudo',
  'Welcome':'Bienvenido',
  "The *Word of God* is your *Sword*. Keep it sharp in your heart for life's daily battles. We're here to help you stay *armed* and *faithful*.":'La *Palabra de Dios* es tu *Espada*. Mantenla afilada en tu corazón para las batallas diarias de la vida. Estamos aquí para ayudarte a mantenerte *armado* y *fiel*.',
  'Language':'Idioma','Choose your look':'Elige tu estilo','You can change this any time in Settings.':'Puedes cambiarlo cuando quieras en Ajustes.','Continue':'Continuar',
@@ -168,6 +187,7 @@ var ES={
  'Loading…':'Cargando…','Done today · {a} reps':'Terminó hoy · {a} repeticiones','Not yet today':'Aún no hoy','catching up':'poniéndose al día','Rest day':'Día de descanso','(you)':'(tú)',
  'Personal':'Personal','What you are memorizing on your own.':'Lo que estás memorizando por tu cuenta.','Group passage':'Pasaje de grupo','Choose the passage and schedule':'Elegir el pasaje y el calendario','Or use a passage you already have':'O usa un pasaje que ya tienes','Use this passage':'Usar este pasaje','Step {a} of 4':'Paso {a} de 4','Group plan':'Plan del grupo','New group: {a}':'Grupo nuevo: {a}','What will your group memorize?':'¿Qué va a memorizar tu grupo?','Everyone in the group follows these days. Each person picks their own reminder times in Settings.':'Todos en el grupo siguen estos días. Cada persona elige sus propias horas de recordatorio en Ajustes.','Name your group, then choose what you will memorize together and on which days.':'Ponle nombre a tu grupo; luego elige qué van a memorizar juntos y en qué días.',
  'Created {a}':'Creado el {a}','Joined {a}':'Te uniste el {a}','Delete group':'Borrar grupo','Yes, delete it':'Sí, borrarlo','Delete this group for everyone? This cannot be undone. Your passage stays on this device.':'¿Borrar este grupo para todos? No se puede deshacer. Tu pasaje se queda en este dispositivo.','Group deleted.':'Grupo borrado.','Only the person who started this group can delete it. You can leave it instead.':'Solo quien creó este grupo puede borrarlo. Puedes salir del grupo.',
+ 'Well done, {a}!':'¡Bien hecho, {a}!','Well done!':'¡Bien hecho!',"Today's verses are finished. The Word is a little deeper in your heart.":'Terminaste los versículos de hoy. La Palabra está un poco más profunda en tu corazón.','You showed up today. That is how a sword stays sharp.':'Hoy cumpliste. Así es como una espada se mantiene afilada.','Finished for today. Rest well, and come back tomorrow.':'Listo por hoy. Descansa bien y vuelve mañana.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -384,8 +404,7 @@ function newCode(rnd){var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(var i=0;
 var BOOKS='Genesis,Exodus,Leviticus,Numbers,Deuteronomy,Joshua,Judges,Ruth,1 Samuel,2 Samuel,1 Kings,2 Kings,1 Chronicles,2 Chronicles,Ezra,Nehemiah,Esther,Job,Psalms,Proverbs,Ecclesiastes,Song of Solomon,Isaiah,Jeremiah,Lamentations,Ezekiel,Daniel,Hosea,Joel,Amos,Obadiah,Jonah,Micah,Nahum,Habakkuk,Zephaniah,Haggai,Zechariah,Malachi,Matthew,Mark,Luke,John,Acts,Romans,1 Corinthians,2 Corinthians,Galatians,Ephesians,Philippians,Colossians,1 Thessalonians,2 Thessalonians,1 Timothy,2 Timothy,Titus,Philemon,Hebrews,James,1 Peter,2 Peter,1 John,2 John,3 John,Jude,Revelation'.split(',');
 var BOOKS_ES='Génesis,Éxodo,Levítico,Números,Deuteronomio,Josué,Jueces,Rut,1 Samuel,2 Samuel,1 Reyes,2 Reyes,1 Crónicas,2 Crónicas,Esdras,Nehemías,Ester,Job,Salmos,Proverbios,Eclesiastés,Cantares,Isaías,Jeremías,Lamentaciones,Ezequiel,Daniel,Oseas,Joel,Amós,Abdías,Jonás,Miqueas,Nahúm,Habacuc,Sofonías,Hageo,Zacarías,Malaquías,Mateo,Marcos,Lucas,Juan,Hechos,Romanos,1 Corintios,2 Corintios,Gálatas,Efesios,Filipenses,Colosenses,1 Tesalonicenses,2 Tesalonicenses,1 Timoteo,2 Timoteo,Tito,Filemón,Hebreos,Santiago,1 Pedro,2 Pedro,1 Juan,2 Juan,3 Juan,Judas,Apocalipsis'.split(',');
 var BOOK_IDS='GEN,EXO,LEV,NUM,DEU,JOS,JDG,RUT,1SA,2SA,1KI,2KI,1CH,2CH,EZR,NEH,EST,JOB,PSA,PRO,ECC,SNG,ISA,JER,LAM,EZK,DAN,HOS,JOL,AMO,OBA,JON,MIC,NAM,HAB,ZEP,HAG,ZEC,MAL,MAT,MRK,LUK,JHN,ACT,ROM,1CO,2CO,GAL,EPH,PHP,COL,1TH,2TH,1TI,2TI,TIT,PHM,HEB,JAS,1PE,2PE,1JN,2JN,3JN,JUD,REV'.split(',');
-var IMG_A='assets/flow.jpg';
-var IMG_B={today:'assets/ribbon-today.jpg',calendar:'assets/ribbon-calendar.jpg',passages:'assets/ribbon-passages.jpg',settings:'assets/ribbon-settings.jpg'};
+var IMG_B={today:'assets/armor-dagger.jpg',calendar:'assets/armor-shield.jpg',passages:'assets/armor-helmet.jpg',group:'assets/armor-sword.jpg',settings:'assets/armor-dagger.jpg'};
 var KEY='treasured.v1';
 var S={lang:null,name:'',groups:[],fb:null,theme:null,still:false,plans:[],reminders:['07:00','07:00','07:00','07:00','07:00','07:00','07:00'],done:{}};
 var UI={tab:'today',hide:{},open:{},wiz:null,cal:null,confirm:null,note:null,noteId:null,snooze:null,g:{name:'',plan:'',code:''},gm:{},gmsg:'',gbusy:false,gconfirm:null};
@@ -401,29 +420,20 @@ function nativeSync(){if(isNative()){try{var t=new Date();window.webkit.messageH
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 function save(){persist();nativeSync();queueReport();}
 // Sounds. Val's rule: buttons make NO sound, only a light tap you can feel. The one sound is a soft
-// three-note chime (the same notes as the reminder sound) that celebrates finishing a verse's
-// repetitions; finishing everything for the day adds a fourth, higher note.
-var AC=null;
-function bell(f,t,vol){
-  [[1,1,3.2],[2.01,0.35,5.5],[3,0.15,8]].forEach(function(p){
-    var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f*p[0];
-    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol*p[1],t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+Math.min(1.4,4.6/p[2]));
-    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+1.5);
-  });
-}
+// No sounds inside the app (Val's choice): finishing gives a short vibration, and finishing the whole day shows a pop-up.
 // kinds: verse (a verse's repetitions are finished), day (everything for today is finished), tick (snooze dials), tap (everything else)
 function sfx(kind){
-  if(S.sound!==false&&(kind==='verse'||kind==='day')){
-    try{
-      if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C();}
-      if(AC){if(AC.state==='suspended')AC.resume();var t=AC.currentTime;
-        bell(659.25,t,0.09);bell(987.77,t+0.22,0.075);bell(1318.5,t+0.44,0.05);
-        if(kind==='day')bell(1975.5,t+0.70,0.035);}
-    }catch(e){}
-  }
   var big=kind==='verse'||kind==='day';
   if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({haptic:big?'success':kind==='tick'?'select':'light'});}catch(e){}}
   else if(kind!=='tick'){try{if(navigator.vibrate)navigator.vibrate(big?[12,40,12]:8);}catch(e){}}
+}
+var CHEERS=["Today's verses are finished. The Word is a little deeper in your heart.",'You showed up today. That is how a sword stays sharp.','Finished for today. Rest well, and come back tomorrow.'],cheerT=0;
+function showCheer(){
+  UI.cheer=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+  clearTimeout(cheerT);cheerT=setTimeout(function(){if(UI.cheer){UI.cheer=null;render();}},4000);
+}
+function viewCheer(){
+  return '<div class="cheerbg" data-a="cheerclose"><div class="cheer" role="status"><div class="star" aria-hidden="true">✦</div><h1>'+esc((S.name||'').trim()?txf('Well done, {a}!',S.name.trim()):tx('Well done!'))+'</h1><p>'+tx(UI.cheer)+'</p></div></div>';
 }
 function allDoneToday(){var ts=tasksFor(S.plans,S.done,todayDn());return ts.length>0&&ts.every(function(t){return t.count>=t.reps;});}
 // ---------- Groups ----------
@@ -495,7 +505,7 @@ function memberLine(m,iso){
 }
 function viewGroup(){
   var iso=dnToIso(todayDn());
-  var h='<div class="card"><h1>'+tx('Group')+'</h1><p class="muted" style="margin:6px 0 0">'+tx('Memorize together. Everyone in a group follows the same calendar and sees who has finished today.')+'</p></div>';
+  var h='<div class="card hero"><h1>'+tx('Group')+'</h1><p class="muted" style="margin:6px 0 0">'+tx('Memorize together. Everyone in a group follows the same calendar and sees who has finished today.')+'</p></div>';
   if(UI.gmsg)h+='<div class="card"><div class="msg" role="status" style="margin:0">'+esc(UI.gmsg)+'</div></div>';
   if(!(S.name||'').trim())h+='<div class="card"><h2>'+tx('Your name')+'</h2><p class="muted">'+tx('Add your name first, so your group can see who you are.')+'</p><label for="name_in">'+tx('First name or nickname')+'</label><input id="name_in" data-c="name" autocomplete="given-name" maxlength="30" value=""></div>';
   (S.groups||[]).forEach(function(g){
@@ -523,7 +533,7 @@ var CHECK='<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fi
 var GL={c:null,ctx:null,p:[],raf:0,w:0,h:0};
 function glitterOn(){
   var calm=false;try{calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
-  return S.theme!=='B'&&!S.still&&!calm;
+  return !S.still&&!calm;
 }
 function glitterSize(){
   var d=Math.min(window.devicePixelRatio||1,2);GL.w=window.innerWidth;GL.h=window.innerHeight;
@@ -541,13 +551,15 @@ function glitterInit(){
 function glitterTick(t){
   var ctx=GL.ctx;ctx.clearRect(0,0,GL.w,GL.h);
   if(!glitterOn()){GL.raf=0;return;}
+  var dk=true;   // one look only now (Sword and shield): plain deeper-gold specks
   for(var i=0;i<GL.p.length;i++){
     var p=GL.p[i];
     p.x+=p.vx+Math.sin(t/1500+p.sway)*0.22;p.y+=p.vy;
     if(p.y>GL.h+12||p.x>GL.w+12)GL.p[i]=p=glitterNew(false);
     var a=0.2+0.8*(0.5+0.5*Math.sin(t/1000*p.sp+p.ph));
-    ctx.globalAlpha=a*0.2;ctx.fillStyle='#F0C75A';ctx.beginPath();ctx.arc(p.x,p.y,p.r*3.2,0,6.283);ctx.fill();
-    ctx.globalAlpha=a;ctx.fillStyle='#FFF1BF';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill();
+    if(dk){a*=Math.max(0,Math.min(1,(p.y-GL.h*0.30)/(GL.h*0.12)));if(a<=0)continue;}   // Sword and shield: no dust up in the white title area, and no halo
+    else{ctx.globalAlpha=a*0.2;ctx.fillStyle='#F0C75A';ctx.beginPath();ctx.arc(p.x,p.y,p.r*3.2,0,6.283);ctx.fill();}
+    ctx.globalAlpha=a;ctx.fillStyle=dk?'#F2C94C':'#FFF1BF';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill();
   }
   ctx.globalAlpha=1;
   GL.raf=window.requestAnimationFrame(glitterTick);
@@ -560,24 +572,18 @@ function glitterSync(){
 
 // Look B shows a different still art piece on each page.
 function bgFor(){
-  if(S.theme!=='B')return IMG_A;
   return IMG_B[UI.wiz?'passages':!S.welcomed?'today':UI.tab]||IMG_B.today;
 }
 var preloaded=false;
 function preloadArt(){
-  if(preloaded||S.theme!=='B'||typeof Image==='undefined')return;
+  if(preloaded||typeof Image==='undefined')return;
   preloaded=true;for(var k in IMG_B){var im=new Image();im.src=IMG_B[k];}
 }
 function applyTheme(){
-  document.body.className='theme-'+(S.theme==='B'?'b':'a')+(S.still?' still':'');
+  document.body.className='theme-b'+(S.still?' still':'');
   try{document.documentElement.lang=LANG;}catch(e){}
   var want=bgFor(),im=$('#bgimg');if(im.getAttribute('src')!==want)im.setAttribute('src',want);
   glitterSync();preloadArt();
-}
-function themePicker(){
-  return '<div class="themes">'+
-   '<button class="themepick'+(S.theme!=='B'?' on':'')+'" data-a="theme" data-v="A" aria-pressed="'+(S.theme!=='B')+'"><img src="'+IMG_A+'" alt=""><div>'+tx('Flowing gold')+'</div></button>'+
-   '<button class="themepick'+(S.theme==='B'?' on':'')+'" data-a="theme" data-v="B" aria-pressed="'+(S.theme==='B')+'"><img src="'+IMG_B.today+'" alt=""><div>'+tx('Silk ribbon')+'</div></button></div>';
 }
 function langPicker(){
   return '<div class="chips"><button class="chip'+(LANG==='en'?' on':'')+'" data-a="lang" data-v="en" aria-pressed="'+(LANG==='en')+'" lang="en">English</button><button class="chip'+(LANG==='es'?' on':'')+'" data-a="lang" data-v="es" aria-pressed="'+(LANG==='es')+'" lang="es">Español</button></div>';
@@ -594,6 +600,7 @@ function render(){
     tabs.innerHTML=T.map(function(x){return '<button data-a="tab" data-v="'+x[0]+'" class="'+(UI.tab===x[0]?'on':'')+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+x[2]+'</svg>'+tx(x[1])+'</button>';}).join('');
   }
   if(UI.snooze)html+=viewSnooze();
+  if(UI.cheer)html+=viewCheer();
   app.innerHTML=html;
   if(UI.snooze){var wh=document.getElementById('wh_h'),wm=document.getElementById('wh_m');if(wh)wh.scrollTop=UI.snooze.h*44;if(wm)wm.scrollTop=UI.snooze.m/5*44;}
 }
@@ -612,16 +619,15 @@ function viewWelcome(){
   return '<div class="card"><div class="eyebrow red">'+tx('Welcome')+'</div><h1>'+tx('Sword of the Word')+'</h1><p style="margin-top:10px">'+motto()+'</p><p class="muted" style="margin:0">'+tx('Pick a passage, choose your pace, and your calendar is built for you.')+'</p></div>'+
    '<div class="card"><h2>'+tx('What should we call you?')+'</h2><label for="name_in">'+tx('First name or nickname')+'</label><input id="name_in" autocomplete="given-name" maxlength="30" value="'+esc(S.name||'')+'"><p class="muted" style="margin:8px 0 0">'+tx('Your reminders will use this name. It stays on this device.')+'</p></div>'+
    '<div class="card"><h2>'+tx('Language')+' / Idioma</h2>'+langPicker()+'</div>'+
-   '<div class="card"><h2>'+tx('Choose your look')+'</h2><p class="muted">'+tx('You can change this any time in Settings.')+'</p>'+themePicker()+
-   '<button class="btn wide" data-a="begin">'+tx('Continue')+'</button></div>';
+   '<button class="btn wide" data-a="begin">'+tx('Continue')+'</button>';
 }
 function taskCard(t){
   var id=t.key,done=t.count>=t.reps;
   if(t.kind==='learn'){
     var hidden=UI.hide[id];
-    return '<div class="card float"><div class="row between"><div class="eyebrow red">'+esc(t.label)+'</div><div class="muted" style="font-weight:600">'+esc(t.verse.ref+(t.verse.tr||''))+'</div></div>'+
-     '<div class="'+(hidden?'ink':'')+'"><p class="verse"'+(hidden?' aria-hidden="true"':'')+'>'+esc(t.verse.t)+'</p>'+(hidden?'<div class="inkref">'+esc(t.verse.ref)+'</div>':'')+'</div>'+
-     '<div class="row" style="margin-bottom:12px"><div><span class="big">'+t.count+'</span> <span class="muted" style="font-weight:600">'+tx('of')+' '+t.reps+'</span></div><div class="bar"><i style="width:'+Math.round(t.count/t.reps*100)+'%"></i></div></div>'+
+    return '<div class="card float task"><div class="row between"><div class="eyebrow red pill">'+esc(t.label)+'</div><div class="muted pill" style="font-weight:600">'+esc(t.verse.ref+(t.verse.tr||''))+'</div></div>'+
+     '<div class="'+(hidden?'ink':'')+'"><p class="verse"'+(hidden?' aria-hidden="true"':'')+'>'+(hidden?esc(t.verse.t):'<span class="vl">'+esc(t.verse.t)+'</span>')+'</p>'+(hidden?'<div class="inkref">'+esc(t.verse.ref)+'</div>':'')+'</div>'+
+     '<div class="row prow" style="margin-bottom:12px"><div><span class="big">'+t.count+'</span> <span class="muted" style="font-weight:600">'+tx('of')+' '+t.reps+'</span></div><div class="bar"><i style="width:'+Math.round(t.count/t.reps*100)+'%"></i></div></div>'+
      '<div class="row"><button class="btn grow" data-a="tap" data-k="'+esc(id)+'" data-r="'+t.reps+'"'+(done?' disabled':'')+'>'+tx(done?'Done for today':'I said it — tap')+'</button>'+
      '<button class="btn plain small" data-a="hide" data-k="'+esc(id)+'">'+tx(hidden?'Show words':'Hide words')+'</button></div>'+
      (t.count>0?'<button class="btn small" style="background:none;color:var(--muted);padding:0;margin-top:6px" data-a="undo" data-k="'+esc(id)+'">'+tx('Undo last tap')+'</button>':'')+'</div>';
@@ -634,8 +640,8 @@ function taskCard(t){
 function viewToday(){
   var n=todayDn(),ts=tasksFor(S.plans,S.done,n),h='';
   var left=ts.filter(function(t){return t.count<t.reps;}).length;
-  h+='<div class="card"><div class="eyebrow">'+fmt(n,true)+'</div><h1>'+esc(tx("Today's practice"))+'</h1>'+(S.name?'<p style="margin:6px 0 0;font-weight:600;color:var(--red)">'+esc(txf('Stay armed, {a}.',S.name))+'</p>':'')+
-     (S.plans.length?'<p class="muted" style="margin:6px 0 0">'+(ts.length?(left?txf('{a} of {b} left today',left,ts.length):tx('All done for today. Well done.')):tx('Nothing scheduled today. Rest well.'))+'</p>':'')+'<div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn plain small" data-a="lang" data-v="'+(LANG==='es'?'en':'es')+'" lang="'+(LANG==='es'?'en':'es')+'">'+(LANG==='es'?'English':'Español')+'</button><button class="btn plain small" data-a="theme" data-v="'+(S.theme==='B'?'A':'B')+'">'+tx('Switch background')+'</button>'+(isNative()&&left?'<button class="btn plain small" data-a="snoozeopen">'+tx('Snooze reminder')+'</button>':'')+'</div></div>';
+  h+='<div class="card hero"><div class="eyebrow">'+fmt(n,true)+'</div><h1>'+esc(tx("Today's practice"))+'</h1>'+(S.name?'<p style="margin:6px 0 0;font-weight:600;color:var(--red)">'+esc(txf('Stay armed, {a}.',S.name))+'</p>':'')+
+     (S.plans.length?'<p class="muted" style="margin:6px 0 0">'+(ts.length?(left?txf('{a} of {b} left today',left,ts.length):tx('All done for today. Well done.')):tx('Nothing scheduled today. Rest well.'))+'</p>':'')+'</div>';
   if(!S.plans.length)return h+'<div class="card"><h2>'+tx('Start your first passage')+'</h2><p>'+tx('Choose a verse or passage and we will build your schedule.')+'</p><button class="btn wide" data-a="newplan">'+tx('Choose a passage')+'</button></div>';
   var behind=S.plans.some(function(p){return graceStart(p,S.done,n)!==null;});
   if(behind)h+='<div class="card"><div class="eyebrow red">'+tx('Grace mode')+'</div><p style="margin-top:6px">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p><button class="btn ghost small" data-a="grace">'+tx('Pick up where I left off')+'</button></div>';
@@ -664,8 +670,8 @@ function viewCalendar(){
 function paceText(p){return p.type==='weekdays'?txf('On {a}',p.days.map(function(d){return wd(d);}).join(', ')):p.n===1?tx('Every day'):p.n===7?tx('Once a week'):txf('Every {a} days',p.n);}
 function viewPassages(){
   var t=todayDn();
-  var h='<div class="card"><h1>'+tx('Personal')+'</h1><p class="muted" style="margin:6px 0 12px">'+tx('What you are memorizing on your own.')+'</p><button class="btn wide" data-a="newplan">'+tx('Add a verse or passage')+'</button></div>'+
-   '<div class="card"><div class="eyebrow red">'+tx('Grace mode')+'</div><p class="muted" style="margin:6px 0 0">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p></div>';
+  var h='<div class="card hero"><h1>'+tx('Personal')+'</h1><p class="muted" style="margin:6px 0 12px">'+tx('What you are memorizing on your own.')+'</p><button class="btn wide" data-a="newplan">'+tx('Add a verse or passage')+'</button></div>'+
+   '<div class="card bare"><div class="eyebrow red">'+tx('Grace mode')+'</div><p class="muted" style="margin:6px 0 0">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p></div>';
   S.plans.forEach(function(p){
     var started=p.offsets.filter(function(o){return dateOfPlanDay(p,o)<=t;}).length;
     h+='<div class="card">'+(p.group?'<div class="eyebrow red">'+tx('Group passage')+'</div>':'')+'<h2>'+esc(p.title)+'</h2><p class="muted">'+txf('{a} of {b} verses started',started,p.verses.length)+' · '+paceText(p.pace)+' · '+txf('began {a}',fmt(isoToDn(p.start)))+'</p>'+
@@ -680,13 +686,12 @@ function reminderRows(){
   return rows;
 }
 function viewSettings(){
-  return '<div class="card"><h1>'+tx('Settings')+'</h1></div>'+
+  return '<div class="card hero"><h1>'+tx('Settings')+'</h1></div>'+
    '<div class="card"><div class="eyebrow red">'+tx('Our mission')+'</div><h2 style="margin-top:4px">'+tx('Sword of the Word')+'</h2><p style="margin:0;font-size:17px">'+motto()+'</p></div>'+
    '<div class="card"><h2>'+tx('Your name')+'</h2><label for="name_in">'+tx('First name or nickname')+'</label><input id="name_in" data-c="name" autocomplete="given-name" maxlength="30" value="'+esc(S.name||'')+'"><p class="muted" style="margin:8px 0 0">'+tx('Your reminders will use this name. It stays on this device.')+'</p></div>'+
    '<div class="card"><h2>'+tx('Language')+'</h2>'+langPicker()+'</div>'+
-   '<div class="card"><h2>'+tx('Background')+'</h2>'+themePicker()+'<button class="choice'+(S.still?' on':'')+'" data-a="still" aria-pressed="'+!!S.still+'">'+tx('Still mode')+'<span>'+tx(S.still?'motion off':'motion on')+'</span></button>'+
-   '<button class="choice'+(S.sound!==false?' on':'')+'" data-a="sound" aria-pressed="'+(S.sound!==false)+'">'+tx('Celebration chime')+'<span>'+tx(S.sound!==false?'chime on':'chime off')+'</span></button></div>'+
-   '<div class="card"><h2>'+tx('Reminder times')+'</h2><p class="muted">'+tx(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+reminderRows()+'</div>'+
+   '<div class="card"><h2>'+tx('Background')+'</h2><button class="choice'+(S.still?' on':'')+'" data-a="still" aria-pressed="'+!!S.still+'">'+tx('Still mode')+'<span>'+tx(S.still?'motion off':'motion on')+'</span></button></div>'+
+   '<div class="card"><h2>'+tx('Reminder times')+'</h2><p class="muted">'+tx(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+reminderRows()+(isNative()?'<button class="btn ghost small" style="margin-top:6px" data-a="snoozeopen">'+tx('Snooze reminder')+'</button>':'')+'</div>'+
    '<div class="card"><h2>'+tx('About')+'</h2><p class="muted">'+tx('Scripture from the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+' '+tx('If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.')+'</p>'+
    (UI.confirm==='reset'?'<p>'+tx('Erase all passages and progress on this device?')+'</p><div class="row"><button class="btn small" data-a="reset">'+tx('Yes, erase')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="askreset">'+tx('Erase everything')+'</button>')+'</div>';
 }
@@ -791,8 +796,7 @@ var ACT={
   },
   grace:function(d){var t=todayDn(),any=false;S.plans.forEach(function(p){if(d.id&&p.id!==d.id)return;if(applyGrace(p,S.done,t))any=true;});
     UI.note=tx(any?'Done. Your schedule now continues from today.':'You are on track. Nothing to reset.');UI.noteId=d.id||null;save();},
-  theme:function(d){S.theme=d.v;save();},
-  begin:function(){if(!S.theme)S.theme='A';S.welcomed=true;save();if(!S.plans.length)UI.wiz=newWiz();},
+  begin:function(){S.welcomed=true;save();if(!S.plans.length)UI.wiz=newWiz();},
   tab:function(d){UI.tab=d.v;UI.confirm=null;UI.note=null;UI.gmsg='';UI.gconfirm=null;window.scrollTo(0,0);if(d.v==='group')refreshGroups();},
   newplan:function(){UI.wiz=newWiz();window.scrollTo(0,0);},
   tap:function(d){S.done[d.k]=Math.min((S.done[d.k]||0)+1,+d.r);save();},
@@ -817,7 +821,7 @@ var ACT={
     if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({snooze:mins,title:fillName(m[0],S.name),body:m[1]});}catch(e){}}
     UI.note=txf('Okay. I will remind you in {a}.',durText(s.h,s.m));UI.noteId=null;UI.snooze=null;save();},
   still:function(){S.still=!S.still;save();},
-  sound:function(){S.sound=S.sound===false;save();},
+  cheerclose:function(){UI.cheer=null;},
   mon:function(d){var c=UI.cal;c.m+=+d.v;if(c.m<0){c.m=11;c.y--;}if(c.m>11){c.m=0;c.y++;}},
   pick:function(d){UI.cal.sel=+d.n;},
   wcancel:function(){UI.wiz=null;},
@@ -860,7 +864,8 @@ document.addEventListener('click',function(e){
   var a=el.dataset.a,f=ACT[a];if(a!=='grace'&&a!=='snoozego')UI.note=null;if(a.charAt(0)!=='g'||a==='grace')UI.gmsg=UI.tab==='group'&&a==='theme'?UI.gmsg:'';
   if(f){var was=allDoneToday(),k=el.dataset.k,r=+el.dataset.r,before=k?(S.done[k]||0):0;f(el.dataset);
     var verseDone=a==='tap'&&before<r&&(S.done[k]||0)>=r;
-    sfx(!was&&allDoneToday()?'day':verseDone?'verse':'tap');
+    var dayDone=!was&&allDoneToday();if(dayDone)showCheer();
+    sfx(dayDone?'day':verseDone?'verse':'tap');
     render();}
 });
 // The snooze dials: read the value when a dial is rolled.
