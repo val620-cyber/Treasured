@@ -20,6 +20,12 @@ body{font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:#fff
 #bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .theme-a #bg img{animation:drift 40s ease-in-out infinite alternate}
 .theme-b #bg img{object-position:top center}
+#bgfill{display:none;position:absolute;top:-60px;left:-60px;right:-60px;bottom:-60px;background-size:cover;background-position:center;-webkit-filter:blur(34px);filter:blur(34px)}
+/* Wide screens (tablets, computers): show the whole tall picture in the middle, with a soft blurred copy of it filling the sides. */
+@media (min-aspect-ratio:4/5){
+ #bgfill{display:block}
+ .theme-b #bg img{object-fit:contain;object-position:center;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%)}
+}
 @keyframes drift{from{transform:translate(-2%,-2%) scale(1.12)}to{transform:translate(2%,2%) scale(1.2)}}
 @keyframes floaty{from{transform:translateY(0)}to{transform:translateY(-4px)}}
 .still #bg img,.still .card{animation:none!important}
@@ -141,7 +147,7 @@ textarea{min-height:260px;line-height:1.4}
 </style>
 </head>
 <body class="theme-a">
-<div id="bg"><img id="bgimg" alt=""></div>
+<div id="bg"><div id="bgfill"></div><img id="bgimg" alt=""></div>
 <canvas id="glitter" aria-hidden="true"></canvas>
 <main id="app"></main>
 <nav id="tabs" hidden></nav>
@@ -593,7 +599,7 @@ function preloadArt(){
 function applyTheme(){
   document.body.className='theme-b'+(S.still?' still':'');
   try{document.documentElement.lang=LANG;}catch(e){}
-  var want=bgFor(),im=$('#bgimg');if(im.getAttribute('src')!==want)im.setAttribute('src',want);
+  var want=bgFor(),im=$('#bgimg');if(im.getAttribute('src')!==want){im.setAttribute('src',want);var bf=$('#bgfill');if(bf&&bf.style)bf.style.backgroundImage='url("'+want+'")';}
   glitterSync();preloadArt();
 }
 function langPicker(){
