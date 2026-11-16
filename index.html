@@ -11,7 +11,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap">
 <style>
 :root{--ink:#161413;--muted:#5E5955;--red:#A4161A;--deep:#7D0F13;--gold:#B8892B;--line:#DDD6CE}
-*{box-sizing:border-box}
+*{box-sizing:border-box;touch-action:manipulation}   /* manipulation = no double-tap zoom while tapping reps; pinch zoom still works */
+html{-webkit-text-size-adjust:100%}
+.btn,.circle,#tabs button{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 html,body{margin:0}
 body{font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:#fff;min-height:100vh;-webkit-text-size-adjust:100%}
 #bg{position:fixed;inset:0;overflow:hidden;z-index:0;background:#fff}
