@@ -221,6 +221,7 @@ var ES={
  'Reminders: Settings':'Recordatorios: Ajustes','Choose a reminder time for each day of the week, change the language, or watch this tour again.':'Elige una hora de recordatorio para cada día de la semana, cambia el idioma o vuelve a ver este recorrido.',
  '{a} of {b}':'{a} de {b}','Skip tour':'Saltar recorrido','Add my first passage':'Agregar mi primer pasaje','Show the tour again':'Ver el recorrido otra vez','Share the app':'Compartir la aplicación','I am memorizing Scripture with Sword of the Word. It is free:':'Estoy memorizando las Escrituras con Espada de la Palabra. Es gratis:','Other phones and computers':'Otros teléfonos y computadoras','Link copied. Paste it in a message to a friend.':'Enlace copiado. Pégalo en un mensaje a un amigo.',
  '{a} is waiting for you.':'{a} te está esperando.',
+ 'Added {a}. I worked out where each verse starts. Please check them below.':'Se agregaron {a}. Calculé dónde empieza cada versículo. Revísalos abajo, por favor.','Groups store your nickname and daily checkmarks online. You can delete all of it at any time.':'Los grupos guardan tu apodo y tus marcas diarias en línea. Puedes borrar todo en cualquier momento.','Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.':'¿Borrar del servidor tu apodo, tus marcas y los grupos que creaste? No se puede deshacer.','Delete my group data':'Borrar mis datos de grupo','Done. Your group data was deleted from the server. Your passages stay on this device.':'Listo. Tus datos de grupo se borraron del servidor. Tus pasajes se quedan en este dispositivo.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -313,14 +314,59 @@ function readRef(s){
   var a=+m[3],b=m[4]?+m[4]:a;if(b<a)b=a;
   return {book:book,ch:+m[2],a:a,b:b,tr:m[5]||''};
 }
+// Finds a Bible book by its English or Spanish name (or a clear start of it, like "Rev"). -1 when unknown.
+function bookIndex(name){
+  function nz(x){return String(x).toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,'');}
+  var q=nz(name),i;if(q.length<2)return -1;
+  for(i=0;i<BOOKS.length;i++)if(nz(BOOKS[i])===q||nz(BOOKS_ES[i])===q)return i;
+  for(i=0;i<BOOKS.length;i++)if(nz(BOOKS[i]).indexOf(q)===0||nz(BOOKS_ES[i]).indexOf(q)===0)return i;
+  return -1;
+}
+// Splits pasted text that has no verse numbers into n verses.
+// refs = the same verses from the built-in Bible (any translation): each piece is matched to the verse it shares the most words with.
+// Without refs it falls back to even pieces. Cuts are only made at punctuation or line ends when there are enough of them.
+function alignSplit(text,refs,n){
+  var toks=[],i,k,j,p;
+  String(text).split(/\n+/).forEach(function(l){var w=l.trim().split(/\s+/).filter(Boolean);w.forEach(function(x,q){toks.push({w:x,nl:q===w.length-1});});});
+  var W=toks.length;if(n<2||W<n)return null;
+  function key(x){return x.toLowerCase().normalize('NFD').replace(/[^a-z]/g,'').slice(0,5);}
+  var tk=toks.map(function(t){return key(t.w);});
+  function strength(q){var t=toks[q];return t.nl?3:/[.!?;:]["”’')\]]*$/.test(t.w)?2:/[,—–-]["”’')\]]*$/.test(t.w)?1:0;}
+  var cand=[];for(i=0;i<W-1;i++)if(strength(i)>0)cand.push(i);
+  if(cand.length<n-1){cand=[];for(i=0;i<W-1;i++)cand.push(i);}
+  var ends=cand.concat([W-1]),E=ends.length,sets=null,rl=[],tot=0;
+  if(refs&&refs.length===n){sets=refs.map(function(r){var o={};String(r).split(/\s+/).forEach(function(x){var q=key(x);if(q.length>2)o[q]=1;});return o;});rl=refs.map(function(r){return String(r).split(/\s+/).length;});}
+  else for(k=0;k<n;k++)rl.push(1);
+  rl.forEach(function(x){tot+=x;});
+  function score(s,e,v){
+    var len=e-s+1,sc=-Math.abs(Math.log(len/(W*rl[v]/tot)))*0.6;
+    if(sets){var seen={},c=0,m=0;for(var q=s;q<=e;q++){var z=tk[q];if(z.length>2&&!seen[z]){seen[z]=1;m++;if(sets[v][z])c++;}}
+      sc+=2*c/Math.sqrt(Math.max(1,m)*Math.max(1,Object.keys(sets[v]).length));}
+    if(e<W-1)sc+=strength(e)*0.08;
+    return sc;
+  }
+  var best=[],back=[];
+  for(k=0;k<n;k++){best.push([]);back.push([]);
+    for(j=0;j<E;j++){var bv=-1e9,bb=-1;
+      if(k===0)bv=score(0,ends[j],0);
+      else for(p=k-1;p<j;p++)if(best[k-1][p]>-1e8){var val=best[k-1][p]+score(ends[p]+1,ends[j],k);if(val>bv){bv=val;bb=p;}}
+      best[k][j]=bv;back[k][j]=bb;}}
+  if(best[n-1][E-1]<-1e8)return null;
+  var cuts=[];j=E-1;for(k=n-1;k>0;k--){j=back[k][j];if(j<0)return null;cuts.unshift(ends[j]);}
+  var parts=[],st=0;cuts.concat([W-1]).forEach(function(c){parts.push(toks.slice(st,c+1).map(function(t){return t.w;}).join(' '));st=c+1;});
+  return parts;
+}
 // Turns a pasted passage into separate, properly named verses.
 // Works with verse numbers inside the text, or one verse per line; a reference line pasted with the text is used as the reference.
 function parsePassage(ref,trans,text){
   var R=readRef(ref),keep=[];
   String(text||'').split(/\n+/).map(function(s){return s.trim();}).filter(Boolean).forEach(function(l){
     var r=l.length<60?readRef(l):null;
-    if(r){if(!R)R=r;else if(!R.tr&&r.tr)R.tr=r.tr;}else keep.push(l);
+    if(r){if(!R)R=r;else if(!R.tr&&r.tr)R.tr=r.tr;}else if(!/^https?:\/\//i.test(l))keep.push(l);
   });
+  // Bible apps wrap a shared passage in quotation marks; take that outer pair off.
+  if(keep.length){var q0=keep[0],q1=keep[keep.length-1];
+    if(/^[“"]/.test(q0)&&/[”"]$/.test(q1)&&(/[”"]{2}$/.test(q1)||!/[“”"]/.test(keep.join(' ').slice(1,-1)))){keep[0]=q0.slice(1);keep[keep.length-1]=keep[keep.length-1].slice(0,-1);keep=keep.map(function(x){return x.trim();}).filter(Boolean);}}
   if(!keep.length)return {err:'empty'};
   if(!R)return {err:'noref'};
   var tag=(trans||'').trim()||R.tr;tag=tag?' · '+tag:'';
@@ -336,7 +382,7 @@ function parsePassage(ref,trans,text){
     }
     if(ok){parts=[];var prev=0;cuts.concat([joined.length]).forEach(function(c){parts.push(strip(joined.slice(prev,c)));prev=c;});}
     else if(keep.length===k)parts=keep.map(strip);
-    else return {err:'split',n:k};
+    else return {err:'split',n:k,R:R,text:keep.join('\n'),tag:tag};
   }
   if(parts.some(function(p){return !p;}))return {err:'split',n:k};
   return {verses:parts.map(function(t,i){return {ref:R.book+' '+R.ch+':'+(R.a+i),t:t,tr:tag};})};
@@ -754,6 +800,8 @@ function viewSettings(){
    '<div class="card"><h2>'+tx('Reminder times')+'</h2><p class="muted">'+tx(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+reminderRows()+(isNative()?'<button class="btn ghost small" style="margin-top:6px" data-a="snoozeopen">'+tx('Snooze reminder')+'</button>':'')+'</div>'+
    '<div class="card"><h2>'+tx('About')+'</h2><p class="muted">'+tx('Scripture from the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+' '+tx('If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.')+'</p>'+
    (UI.smsg?'<div class="msg" role="status">'+esc(UI.smsg)+'</div>':'')+'<div class="row" style="flex-wrap:wrap"><button class="btn ghost small" data-a="appshare">'+tx('Share the app')+'</button><button class="btn plain small" data-a="tourstart">'+tx('Show the tour again')+'</button></div>'+
+   '<p class="muted" style="margin-top:14px">'+tx('Groups store your nickname and daily checkmarks online. You can delete all of it at any time.')+'</p>'+
+   (UI.wipe?'<div class="row" style="flex-wrap:wrap"><span class="muted">'+tx('Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.')+'</span><button class="btn small" data-a="wipe">'+tx('Yes, delete it')+'</button><button class="btn plain small" data-a="wipeno">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="wipeask">'+tx('Delete my group data')+'</button>')+
    (UI.confirm==='reset'?'<p>'+tx('Erase all passages and progress on this device?')+'</p><div class="row"><button class="btn small" data-a="reset">'+tx('Yes, erase')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="askreset">'+tx('Erase everything')+'</button>')+'</div>';
 }
 function newWiz(){return {step:1,src:'kjv',book:'50',ch:'3',from:'1',to:'',ref:'',tr:'',text:'',verses:[],start:dnToIso(todayDn()),pace:{type:'every',n:2},days:[1,3,5],msg:'',busy:false};}
@@ -853,6 +901,19 @@ var ACT={
     var g=S.groups.filter(function(x){return x.code===d.code;})[0];if(!g)return;
     shareOut(txf('Join my group "{a}" on Sword of the Word. Open the app, tap Group, and enter this code: {b}',g.name,g.code)+' '+appLinks(),'Invite copied. Paste it in a message to your friends.','gmsg');
   },
+  wipeask:function(){UI.wipe=true;UI.smsg='';},
+  wipeno:function(){UI.wipe=false;},
+  wipe:function(){
+    UI.wipe=false;
+    var jobs=S.groups.map(function(g){return fbCall('DELETE','groups/'+g.code+'/members/'+(S.fb?S.fb.uid:'x')).catch(function(){}).then(function(){return g.owner?fbCall('DELETE','groups/'+g.code).catch(function(){}):null;});});
+    var tok=S.fb&&S.fb.token;
+    Promise.all(jobs).then(function(){
+      return tok?fetch('https://identitytoolkit.googleapis.com/v1/accounts:delete?key='+FB.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok})}).catch(function(){}):null;
+    }).then(function(){
+      S.plans.forEach(function(p){delete p.group;});S.groups=[];S.fb=null;UI.gm={};
+      UI.smsg=tx('Done. Your group data was deleted from the server. Your passages stay on this device.');save();render();
+    });
+  },
   appshare:function(){UI.smsg='';shareOut(tx('I am memorizing Scripture with Sword of the Word. It is free:')+' '+appLinks(),'Link copied. Paste it in a message to a friend.','smsg');},
   tourstart:function(){UI.tour=0;UI.tab=TOUR[0].tab;window.scrollTo(0,0);},
   tournext:function(){if(UI.tour>=TOUR.length-1){var first=!S.plans.length;tourEnd();if(first)UI.wiz=newWiz();return;}UI.tour++;UI.tab=TOUR[UI.tour].tab;window.scrollTo(0,0);},
@@ -892,6 +953,24 @@ var ACT={
   wsrc:function(d){UI.wiz.src=d.v;UI.wiz.msg='';},
   wrm:function(d){UI.wiz.verses.splice(+d.i,1);},
   wpaste:function(){var W=UI.wiz,r=parsePassage(W.ref,W.tr,W.text);
+    if(r.err==='split'&&r.R){
+      // No verse numbers in the pasted text: compare it with the built-in Bible to find where each verse starts.
+      var R=r.R,bi=bookIndex(R.book),code=LANG==='es'?'rv1909':'kjv';
+      var finish=function(refs){
+        if(!UI.wiz)return;W.busy=false;
+        var parts=alignSplit(r.text,refs,r.n);
+        if(!parts){W.msg=txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);render();return;}
+        W.verses=W.verses.concat(parts.map(function(t,i){return {ref:R.book+' '+R.ch+':'+(R.a+i),t:t,tr:r.tag};}));W.text='';W.ref='';
+        W.msg=txf('Added {a}. I worked out where each verse starts. Please check them below.',pv(parts.length));render();
+      };
+      if(bi<0){finish(null);return;}
+      W.busy=true;W.msg=tx('Working…');
+      getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+R.ch).then(function(j){
+        var vs=(j.verses||[]).filter(function(v){return +v.verse>=R.a&&+v.verse<=R.b;}).map(function(v){return String(v.text);});
+        finish(vs.length===r.n?vs:null);
+      }).catch(function(){finish(null);});
+      return;
+    }
     if(r.err){W.msg=r.err==='empty'?tx('Type or paste at least one verse first.'):r.err==='noref'?tx('Add the reference first, for example Romans 8:28-30, so each verse gets its proper name.'):txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);return;}
     W.verses=W.verses.concat(r.verses);W.text='';W.ref='';W.msg=txf('Added {a}.',pv(r.verses.length));},
   wfetch:function(){
