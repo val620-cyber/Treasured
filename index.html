@@ -87,6 +87,7 @@ button{font-family:inherit;cursor:pointer}
 .btn.plain{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
 .btn.small{min-height:44px;padding:0 16px;font-size:14px}
 .btn:disabled{opacity:.45}
+.btn.gold,.btn.gold:disabled{opacity:1;background:linear-gradient(180deg,#F8E19A,#D9A22B);color:#3A2A05;border-color:transparent;box-shadow:0 0 18px rgba(226,178,74,.75);text-shadow:none}
 .circle{width:48px;height:48px;border-radius:24px;border:1.5px solid var(--gold);background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
 .circle.on{background:var(--red);border-color:var(--red)}
 .choice{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:56px;padding:0 18px;margin-bottom:10px;border:1px solid var(--line);border-radius:18px;background:#fff;color:var(--ink);font-size:17px;font-weight:600;text-align:left}
@@ -223,6 +224,7 @@ var ES={
  '{a} is waiting for you.':'{a} te está esperando.',
  'Added {a}. I worked out where each verse starts. Please check them below.':'Se agregaron {a}. Calculé dónde empieza cada versículo. Revísalos abajo, por favor.','Groups store your nickname and daily checkmarks online. You can delete all of it at any time.':'Los grupos guardan tu apodo y tus marcas diarias en línea. Puedes borrar todo en cualquier momento.','Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.':'¿Borrar del servidor tu apodo, tus marcas y los grupos que creaste? No se puede deshacer.','Delete my group data':'Borrar mis datos de grupo','Done. Your group data was deleted from the server. Your passages stay on this device.':'Listo. Tus datos de grupo se borraron del servidor. Tus pasajes se quedan en este dispositivo.',
  'Pick the book, chapter and verses above, then paste the passage from your Bible app. The app works out where each verse starts.':'Elige arriba el libro, el capítulo y los versículos; luego pega el pasaje desde tu aplicación de la Biblia. La aplicación calcula dónde empieza cada versículo.','Choose the chapter and the starting verse first, so each verse gets its proper name.':'Elige primero el capítulo y el versículo inicial, para que cada versículo reciba su nombre correcto.',
+ 'Finished today: {a}':'Terminado hoy: {a}','Show':'Mostrar','Hide':'Ocultar',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -733,7 +735,7 @@ function taskCard(t){
     return '<div class="card float task"><div class="row between"><div class="eyebrow red pill">'+esc(t.label)+'</div><div class="muted pill" style="font-weight:600">'+esc(t.verse.ref+(t.verse.tr||''))+'</div></div>'+
      '<div class="'+(hidden?'ink':'')+'"><p class="verse"'+(hidden?' aria-hidden="true"':'')+'>'+(hidden?esc(t.verse.t):'<span class="vl">'+esc(t.verse.t)+'</span>')+'</p>'+(hidden?'<div class="inkref">'+esc(t.verse.ref)+'</div>':'')+'</div>'+
      '<div class="row prow" style="margin-bottom:12px"><div><span class="big">'+t.count+'</span> <span class="muted" style="font-weight:600">'+tx('of')+' '+t.reps+'</span></div><div class="bar"><i style="width:'+Math.round(t.count/t.reps*100)+'%"></i></div></div>'+
-     '<div class="row"><button class="btn grow" data-a="tap" data-k="'+esc(id)+'" data-r="'+t.reps+'"'+(done?' disabled':'')+'>'+tx(done?'Done for today':'I said it — tap')+'</button>'+
+     '<div class="row"><button class="btn grow'+(done?' gold':'')+'" data-a="tap" data-k="'+esc(id)+'" data-r="'+t.reps+'"'+(done?' disabled':'')+'>'+tx(done?'Done for today':'I said it — tap')+'</button>'+
      '<button class="btn plain small" data-a="hide" data-k="'+esc(id)+'">'+tx(hidden?'Show words':'Hide words')+'</button></div>'+
      ((t.count>0||(isNative()&&!done))?'<div class="row between" style="margin-top:8px">'+(t.count>0?'<button class="btn small" style="background:none;color:var(--muted);padding:0" data-a="undo" data-k="'+esc(id)+'">'+tx('Undo last tap')+'</button>':'<span></span>')+
        (isNative()&&!done?'<button class="btn plain small" data-a="snoozeopen" data-ref="'+esc(t.verse.ref)+'">'+tx('Snooze reminder')+'</button>':'')+'</div>':'')+'</div>';
@@ -752,7 +754,11 @@ function viewToday(){
   var behind=S.plans.some(function(p){return graceStart(p,S.done,n)!==null;});
   if(behind)h+='<div class="card"><div class="eyebrow red">'+tx('Grace mode')+'</div><p style="margin-top:6px">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p><button class="btn ghost small" data-a="grace">'+tx('Pick up where I left off')+'</button></div>';
   if(UI.note){h+='<div class="msg" role="status">'+esc(UI.note)+'</div>';}
-  return h+ts.map(taskCard).join('');
+  // A finished verse shows its gold button for a moment, then leaves the page for the rest of the day (UI.showDone brings them back).
+  var fin=ts.filter(function(t){return t.count>=t.reps;}),hid=fin.filter(function(t){return !(UI.gold&&UI.gold[t.key]);}).length;
+  h+=ts.filter(function(t){return t.count<t.reps||UI.showDone||(UI.gold&&UI.gold[t.key]);}).map(taskCard).join('');
+  if(hid)h+='<div class="card bare"><div class="row between"><p class="muted" style="margin:0">✓ '+txf('Finished today: {a}',pv(fin.length))+'</p><button class="btn plain small" data-a="showdone">'+tx(UI.showDone?'Hide':'Show')+'</button></div></div>';
+  return h;
 }
 function viewCalendar(){
   var t=todayDn();
@@ -924,7 +930,9 @@ var ACT={
   begin:function(){S.welcomed=true;save();UI.tour=0;UI.tab=TOUR[0].tab;},
   tab:function(d){if(UI.tour!=null){UI.tour=null;S.tour='done';save();}UI.tab=d.v;UI.smsg='';UI.confirm=null;UI.note=null;UI.gmsg='';UI.gconfirm=null;window.scrollTo(0,0);if(d.v==='group')refreshGroups();},
   newplan:function(){UI.wiz=newWiz();window.scrollTo(0,0);},
-  tap:function(d){S.done[d.k]=Math.min((S.done[d.k]||0)+1,+d.r);save();},
+  tap:function(d){var was=S.done[d.k]||0;S.done[d.k]=Math.min(was+1,+d.r);save();
+    if(was<+d.r&&S.done[d.k]>=+d.r){UI.gold=UI.gold||{};UI.gold[d.k]=true;setTimeout(function(){if(UI.gold)delete UI.gold[d.k];render();},1800);}},
+  showdone:function(){UI.showDone=!UI.showDone;},
   undo:function(d){S.done[d.k]=Math.max((S.done[d.k]||0)-1,0);save();},
   check:function(d){S.done[d.k]=S.done[d.k]?0:1;save();},
   hide:function(d){UI.hide[d.k]=!UI.hide[d.k];},
