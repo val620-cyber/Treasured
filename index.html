@@ -128,6 +128,14 @@ textarea{min-height:260px;line-height:1.4}
 #tabs[hidden]{display:none}
 #tabs button{flex:1;min-width:0;height:52px;padding:0;border:none;background:none;color:var(--muted);font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
 #tabs button.on{color:var(--red);font-weight:700}
+#tabs button.tourhl{color:var(--red);background:rgba(226,178,74,.3);border-radius:26px;box-shadow:0 0 0 2px #E2B24A;animation:tourpulse 1.4s ease-in-out infinite alternate}
+@keyframes tourpulse{from{box-shadow:0 0 0 2px #E2B24A}to{box-shadow:0 0 0 2px #E2B24A,0 0 16px 4px rgba(226,178,74,.75)}}
+.tourbg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:5;background:rgba(22,20,19,.34)}
+.tour{position:fixed;z-index:6;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:448px;background:#fff;border-radius:24px;padding:16px 18px 18px;border:1.5px solid #E2B24A;box-shadow:0 20px 50px rgba(22,20,19,.35);text-shadow:none}
+.tour h2{margin:6px 0 6px;color:var(--red)}
+.tour p{margin:0;font-size:15.5px;line-height:1.45}
+.tour .link{border:none;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;padding:4px 0}
+.tourarrow{position:absolute;bottom:-11px;width:20px;height:20px;margin-left:-10px;background:#fff;border-right:1.5px solid #E2B24A;border-bottom:1.5px solid #E2B24A;transform:rotate(45deg)}
 #tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px 0;margin-top:10px}
 .cal .wd{text-align:center;font-size:12px;font-weight:700;color:var(--muted)}
@@ -205,6 +213,13 @@ var ES={
  'Personal':'Personal','What you are memorizing on your own.':'Lo que estás memorizando por tu cuenta.','Group passage':'Pasaje de grupo','Choose the passage and schedule':'Elegir el pasaje y el calendario','Or use a passage you already have':'O usa un pasaje que ya tienes','Use this passage':'Usar este pasaje','Step {a} of 4':'Paso {a} de 4','Group plan':'Plan del grupo','New group: {a}':'Grupo nuevo: {a}','What will your group memorize?':'¿Qué va a memorizar tu grupo?','Everyone in the group follows these days. Each person picks their own reminder times in Settings.':'Todos en el grupo siguen estos días. Cada persona elige sus propias horas de recordatorio en Ajustes.','Name your group, then choose what you will memorize together and on which days.':'Ponle nombre a tu grupo; luego elige qué van a memorizar juntos y en qué días.',
  'Created {a}':'Creado el {a}','Joined {a}':'Te uniste el {a}','Delete group':'Borrar grupo','Yes, delete it':'Sí, borrarlo','Delete this group for everyone? This cannot be undone. Your passage stays on this device.':'¿Borrar este grupo para todos? No se puede deshacer. Tu pasaje se queda en este dispositivo.','Group deleted.':'Grupo borrado.','Only the person who started this group can delete it. You can leave it instead.':'Solo quien creó este grupo puede borrarlo. Puedes salir del grupo.',
  'Well done, {a}!':'¡Bien hecho, {a}!','Well done!':'¡Bien hecho!',"Today's verses are finished. The Word is a little deeper in your heart.":'Terminaste los versículos de hoy. La Palabra está un poco más profunda en tu corazón.','You showed up today. That is how a sword stays sharp.':'Hoy cumpliste. Así es como una espada se mantiene afilada.','Finished for today. Rest well, and come back tomorrow.':'Listo por hoy. Descansa bien y vuelve mañana.',
+ 'How it works':'Cómo funciona','You learn a verse by saying it aloud many times, then coming back to it so it stays with you. A new verse gets 25 repetitions on its first day, then 20, 15 and 10 over the next three days. After that you review it once a day for 45 days, once a week for 7 weeks, and then once a month. The app keeps the count and the calendar for you.':'Aprendes un versículo diciéndolo en voz alta muchas veces y volviendo a él para que se quede contigo. Un versículo nuevo recibe 25 repeticiones el primer día y luego 20, 15 y 10 en los tres días siguientes. Después lo repasas una vez al día durante 45 días, una vez por semana durante 7 semanas y luego una vez al mes. La aplicación lleva la cuenta y el calendario por ti.',
+ 'Start here: Personal':'Empieza aquí: Personal','Tap Personal, then "Add a verse or passage". Choose your verses, the day you want to begin, and how often you want a new verse.':'Toca Personal y luego "Agregar un versículo o pasaje". Elige tus versículos, el día en que quieres empezar y cada cuánto quieres un versículo nuevo.',
+ 'Every day: Today':'Cada día: Hoy','Today shows the verses for the day. Say a verse aloud, then tap the red button once for each time you say it. "Hide words" lets you test yourself.':'Hoy muestra los versículos del día. Di un versículo en voz alta y toca el botón rojo una vez por cada repetición. "Ocultar palabras" te permite ponerte a prueba.',
+ 'Look ahead: Calendar':'Mira adelante: Calendario','Tap any day to see which verses are planned for it.':'Toca cualquier día para ver qué versículos están planeados.',
+ 'Together: Group':'Juntos: Grupo','To memorize with friends, tap Group, name your group and choose a passage. Share the 6-letter code so they can join. You will see who has finished each day.':'Para memorizar con amigos, toca Grupo, ponle nombre a tu grupo y elige un pasaje. Comparte el código de 6 letras para que se unan. Verás quién ha terminado cada día.',
+ 'Reminders: Settings':'Recordatorios: Ajustes','Choose a reminder time for each day of the week, change the language, or watch this tour again.':'Elige una hora de recordatorio para cada día de la semana, cambia el idioma o vuelve a ver este recorrido.',
+ '{a} of {b}':'{a} de {b}','Skip tour':'Saltar recorrido','Add my first passage':'Agregar mi primer pasaje','Show the tour again':'Ver el recorrido otra vez','Share the app':'Compartir la aplicación','I am memorizing Scripture with Sword of the Word. It is free:':'Estoy memorizando las Escrituras con Espada de la Palabra. Es gratis:','Other phones and computers':'Otros teléfonos y computadoras','Link copied. Paste it in a message to a friend.':'Enlace copiado. Pégalo en un mensaje a un amigo.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -459,6 +474,31 @@ function allDoneToday(){var ts=tasksFor(S.plans,S.done,todayDn());return ts.leng
 var FB={key:'AIzaSyAmD9vDODfjBI5LhWvOYxyQHQ0aJnkDRYA',pid:'sword-of-the-word'};
 var FS='https://firestore.googleapis.com/v1/projects/'+FB.pid+'/databases/(default)/documents/';
 var INVITE_URL='https://val620-cyber.github.io/Treasured/';
+// When the app is on the App Store, paste its link between the quotes (https://apps.apple.com/app/id##########). Every invite and "Share the app" then includes it.
+var APP_STORE_URL='';
+function appLinks(){return APP_STORE_URL?'iPhone: '+APP_STORE_URL+' · '+tx('Other phones and computers')+': '+INVITE_URL:INVITE_URL;}
+function shareOut(text,copied,key){
+  try{if(navigator.share){navigator.share({text:text}).catch(function(){});return;}}catch(e){}
+  try{navigator.clipboard.writeText(text);UI[key]=tx(copied);}catch(e){UI[key]=text;}
+}
+// First-time tour: each step lights up one item in the bottom menu and shows that page behind the card.
+var TOUR=[
+ {tab:'today',t:'How it works',b:'You learn a verse by saying it aloud many times, then coming back to it so it stays with you. A new verse gets 25 repetitions on its first day, then 20, 15 and 10 over the next three days. After that you review it once a day for 45 days, once a week for 7 weeks, and then once a month. The app keeps the count and the calendar for you.'},
+ {tab:'passages',t:'Start here: Personal',b:'Tap Personal, then "Add a verse or passage". Choose your verses, the day you want to begin, and how often you want a new verse.'},
+ {tab:'today',t:'Every day: Today',b:'Today shows the verses for the day. Say a verse aloud, then tap the red button once for each time you say it. "Hide words" lets you test yourself.'},
+ {tab:'calendar',t:'Look ahead: Calendar',b:'Tap any day to see which verses are planned for it.'},
+ {tab:'group',t:'Together: Group',b:'To memorize with friends, tap Group, name your group and choose a passage. Share the 6-letter code so they can join. You will see who has finished each day.'},
+ {tab:'settings',t:'Reminders: Settings',b:'Choose a reminder time for each day of the week, change the language, or watch this tour again.'}];
+var TAB_ORDER=['today','passages','calendar','group','settings'];
+function tourOn(){return UI.tour!=null&&!UI.wiz&&S.welcomed;}
+function tourEnd(){UI.tour=null;S.tour='done';UI.tab='today';save();window.scrollTo(0,0);}
+function viewTour(){
+  var i=UI.tour,st=TOUR[i],last=i===TOUR.length-1,k=TAB_ORDER.indexOf(st.tab);
+  return '<div class="tourbg"></div><div class="tour" role="dialog" aria-label="'+esc(tx(st.t))+'"><div class="row between"><div class="eyebrow">'+txf('{a} of {b}',i+1,TOUR.length)+'</div><button class="link" data-a="tourskip">'+tx('Skip tour')+'</button></div>'+
+    '<h2>'+esc(tx(st.t))+'</h2><p>'+esc(tx(st.b))+'</p><div class="row" style="margin-top:14px">'+(i?'<button class="btn plain small" data-a="tourback">'+tx('Back')+'</button>':'')+
+    '<button class="btn small" style="flex:1" data-a="tournext">'+tx(last?(S.plans.length?'Done':'Add my first passage'):'Next')+'</button></div>'+
+    '<i class="tourarrow" style="left:calc(6px + (100% - 12px) * '+((k+0.5)/5)+')"></i></div>';
+}
 function fbJson(r){return r.json().then(function(j){if(!r.ok){var e=new Error((j&&j.error&&j.error.message)||'error');e.status=r.status;throw e;}return j;});}
 function fbAuth(){
   var a=S.fb,now=Date.now();
@@ -613,11 +653,12 @@ function render(){
   else{
     tabs.hidden=!!UI.snooze;
     html=UI.tab==='calendar'?viewCalendar():UI.tab==='passages'?viewPassages():UI.tab==='group'?viewGroup():UI.tab==='settings'?viewSettings():viewToday();
-    var T=[['today','Today','<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>'],['calendar','Calendar','<rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16M9 3v4M15 3v4"></path>'],['passages','Personal','<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M9 9h6M9 13h6"></path>'],['group','Group','<circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><circle cx="17" cy="9" r="2.6"></circle><path d="M16 14.2c3 .2 5 2.6 5 5.8"></path>'],['settings','Settings','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle>']];
-    tabs.innerHTML=T.map(function(x){return '<button data-a="tab" data-v="'+x[0]+'" class="'+(UI.tab===x[0]?'on':'')+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+x[2]+'</svg>'+tx(x[1])+'</button>';}).join('');
+    var T=[['today','Today','<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>'],['passages','Personal','<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M9 9h6M9 13h6"></path>'],['calendar','Calendar','<rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16M9 3v4M15 3v4"></path>'],['group','Group','<circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><circle cx="17" cy="9" r="2.6"></circle><path d="M16 14.2c3 .2 5 2.6 5 5.8"></path>'],['settings','Settings','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle>']];
+    tabs.innerHTML=T.map(function(x){return '<button data-a="tab" data-v="'+x[0]+'" class="'+(UI.tab===x[0]?'on':'')+(tourOn()&&TOUR[UI.tour].tab===x[0]?' tourhl':'')+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+x[2]+'</svg>'+tx(x[1])+'</button>';}).join('');
   }
   if(UI.snooze)html+=viewSnooze();
   if(UI.cheer)html+=viewCheer();
+  if(tourOn())html+=viewTour();
   app.innerHTML=html;
   if(UI.snooze){var wh=document.getElementById('wh_h'),wm=document.getElementById('wh_m');if(wh)wh.scrollTop=UI.snooze.h*44;if(wm)wm.scrollTop=UI.snooze.m/5*44;}
 }
@@ -710,6 +751,7 @@ function viewSettings(){
    '<div class="card"><h2>'+tx('Background')+'</h2><button class="choice'+(S.still?' on':'')+'" data-a="still" aria-pressed="'+!!S.still+'">'+tx('Still mode')+'<span>'+tx(S.still?'motion off':'motion on')+'</span></button></div>'+
    '<div class="card"><h2>'+tx('Reminder times')+'</h2><p class="muted">'+tx(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+reminderRows()+(isNative()?'<button class="btn ghost small" style="margin-top:6px" data-a="snoozeopen">'+tx('Snooze reminder')+'</button>':'')+'</div>'+
    '<div class="card"><h2>'+tx('About')+'</h2><p class="muted">'+tx('Scripture from the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+' '+tx('If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.')+'</p>'+
+   (UI.smsg?'<div class="msg" role="status">'+esc(UI.smsg)+'</div>':'')+'<div class="row" style="flex-wrap:wrap"><button class="btn ghost small" data-a="appshare">'+tx('Share the app')+'</button><button class="btn plain small" data-a="tourstart">'+tx('Show the tour again')+'</button></div>'+
    (UI.confirm==='reset'?'<p>'+tx('Erase all passages and progress on this device?')+'</p><div class="row"><button class="btn small" data-a="reset">'+tx('Yes, erase')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="askreset">'+tx('Erase everything')+'</button>')+'</div>';
 }
 function newWiz(){return {step:1,src:'kjv',book:'50',ch:'3',from:'1',to:'',ref:'',tr:'',text:'',verses:[],start:dnToIso(todayDn()),pace:{type:'every',n:2},days:[1,3,5],msg:'',busy:false};}
@@ -807,14 +849,17 @@ var ACT={
   },
   gshare:function(d){
     var g=S.groups.filter(function(x){return x.code===d.code;})[0];if(!g)return;
-    var text=txf('Join my group "{a}" on Sword of the Word. Open the app, tap Group, and enter this code: {b}',g.name,g.code)+' '+INVITE_URL;
-    try{if(navigator.share){navigator.share({text:text}).catch(function(){});return;}}catch(e){}
-    try{navigator.clipboard.writeText(text);UI.gmsg=tx('Invite copied. Paste it in a message to your friends.');}catch(e){UI.gmsg=text;}
+    shareOut(txf('Join my group "{a}" on Sword of the Word. Open the app, tap Group, and enter this code: {b}',g.name,g.code)+' '+appLinks(),'Invite copied. Paste it in a message to your friends.','gmsg');
   },
+  appshare:function(){UI.smsg='';shareOut(tx('I am memorizing Scripture with Sword of the Word. It is free:')+' '+appLinks(),'Link copied. Paste it in a message to a friend.','smsg');},
+  tourstart:function(){UI.tour=0;UI.tab=TOUR[0].tab;window.scrollTo(0,0);},
+  tournext:function(){if(UI.tour>=TOUR.length-1){var first=!S.plans.length;tourEnd();if(first)UI.wiz=newWiz();return;}UI.tour++;UI.tab=TOUR[UI.tour].tab;window.scrollTo(0,0);},
+  tourback:function(){if(UI.tour>0){UI.tour--;UI.tab=TOUR[UI.tour].tab;window.scrollTo(0,0);}},
+  tourskip:function(){tourEnd();},
   grace:function(d){var t=todayDn(),any=false;S.plans.forEach(function(p){if(d.id&&p.id!==d.id)return;if(applyGrace(p,S.done,t))any=true;});
     UI.note=tx(any?'Done. Your schedule now continues from today.':'You are on track. Nothing to reset.');UI.noteId=d.id||null;save();},
-  begin:function(){S.welcomed=true;save();if(!S.plans.length)UI.wiz=newWiz();},
-  tab:function(d){UI.tab=d.v;UI.confirm=null;UI.note=null;UI.gmsg='';UI.gconfirm=null;window.scrollTo(0,0);if(d.v==='group')refreshGroups();},
+  begin:function(){S.welcomed=true;save();UI.tour=0;UI.tab=TOUR[0].tab;},
+  tab:function(d){if(UI.tour!=null){UI.tour=null;S.tour='done';save();}UI.tab=d.v;UI.smsg='';UI.confirm=null;UI.note=null;UI.gmsg='';UI.gconfirm=null;window.scrollTo(0,0);if(d.v==='group')refreshGroups();},
   newplan:function(){UI.wiz=newWiz();window.scrollTo(0,0);},
   tap:function(d){S.done[d.k]=Math.min((S.done[d.k]||0)+1,+d.r);save();},
   undo:function(d){S.done[d.k]=Math.max((S.done[d.k]||0)-1,0);save();},
@@ -895,7 +940,7 @@ document.addEventListener('change',function(e){
   var el=e.target;if(el.dataset&&el.dataset.c==='rem'){S.reminders[+el.dataset.i]=el.value||'07:00';save();}
   if(el.dataset&&el.dataset.c==='name'){S.name=el.value.trim().slice(0,30);save();}
 });
-load();if(!S.groups)S.groups=[];glitterInit();render();nativeSync();queueReport();
+load();if(!S.groups)S.groups=[];if(S.welcomed&&!S.tour){UI.tour=0;UI.tab=TOUR[0].tab;}glitterInit();render();nativeSync();queueReport();
 if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({ready:true});}catch(e){}}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){render();nativeSync();queueReport();if(UI.tab==='group')refreshGroups();}});
 </script>
