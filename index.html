@@ -780,7 +780,7 @@ function viewToday(){
   // A finished verse shows its gold button for a moment, then leaves the page for the rest of the day (UI.showDone brings them back).
   var fin=ts.filter(function(t){return t.count>=t.reps;}),hid=fin.filter(function(t){return !(UI.gold&&UI.gold[t.key]);}).length;
   h+=ts.filter(function(t){return t.count<t.reps||UI.showDone||(UI.gold&&UI.gold[t.key]);}).map(taskCard).join('');
-  if(hid)h+='<div class="card bare"><div class="row between"><p class="muted" style="margin:0">✓ '+txf('Finished today: {a}',pv(fin.length))+'</p><button class="btn plain small" data-a="showdone">'+tx(UI.showDone?'Hide':'Show')+'</button></div></div>';
+  if(hid)h+='<div class="card bare"><div class="row between"><p class="muted" style="margin:0">✓ '+txf('Finished today: {a}',pv(fin.length))+'</p><button class="btn gold small" data-a="showdone">'+tx(UI.showDone?'Hide':'Show')+'</button></div></div>';
   return h;
 }
 function viewCalendar(){
