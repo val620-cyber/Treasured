@@ -220,6 +220,7 @@ var ES={
  'Together: Group':'Juntos: Grupo','To memorize with friends, tap Group, name your group and choose a passage. Share the 6-letter code so they can join. You will see who has finished each day.':'Para memorizar con amigos, toca Grupo, ponle nombre a tu grupo y elige un pasaje. Comparte el código de 6 letras para que se unan. Verás quién ha terminado cada día.',
  'Reminders: Settings':'Recordatorios: Ajustes','Choose a reminder time for each day of the week, change the language, or watch this tour again.':'Elige una hora de recordatorio para cada día de la semana, cambia el idioma o vuelve a ver este recorrido.',
  '{a} of {b}':'{a} de {b}','Skip tour':'Saltar recorrido','Add my first passage':'Agregar mi primer pasaje','Show the tour again':'Ver el recorrido otra vez','Share the app':'Compartir la aplicación','I am memorizing Scripture with Sword of the Word. It is free:':'Estoy memorizando las Escrituras con Espada de la Palabra. Es gratis:','Other phones and computers':'Otros teléfonos y computadoras','Link copied. Paste it in a message to a friend.':'Enlace copiado. Pégalo en un mensaje a un amigo.',
+ '{a} is waiting for you.':'{a} te está esperando.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -688,7 +689,8 @@ function taskCard(t){
      '<div class="row prow" style="margin-bottom:12px"><div><span class="big">'+t.count+'</span> <span class="muted" style="font-weight:600">'+tx('of')+' '+t.reps+'</span></div><div class="bar"><i style="width:'+Math.round(t.count/t.reps*100)+'%"></i></div></div>'+
      '<div class="row"><button class="btn grow" data-a="tap" data-k="'+esc(id)+'" data-r="'+t.reps+'"'+(done?' disabled':'')+'>'+tx(done?'Done for today':'I said it — tap')+'</button>'+
      '<button class="btn plain small" data-a="hide" data-k="'+esc(id)+'">'+tx(hidden?'Show words':'Hide words')+'</button></div>'+
-     (t.count>0?'<button class="btn small" style="background:none;color:var(--muted);padding:0;margin-top:6px" data-a="undo" data-k="'+esc(id)+'">'+tx('Undo last tap')+'</button>':'')+'</div>';
+     ((t.count>0||(isNative()&&!done))?'<div class="row between" style="margin-top:8px">'+(t.count>0?'<button class="btn small" style="background:none;color:var(--muted);padding:0" data-a="undo" data-k="'+esc(id)+'">'+tx('Undo last tap')+'</button>':'<span></span>')+
+       (isNative()&&!done?'<button class="btn plain small" data-a="snoozeopen" data-ref="'+esc(t.verse.ref)+'">'+tx('Snooze reminder')+'</button>':'')+'</div>':'')+'</div>';
   }
   var open=UI.open[id];
   return '<div class="card"><div class="row"><button class="grow" style="border:none;background:none;text-align:left;padding:0;color:inherit" data-a="open" data-k="'+esc(id)+'" aria-expanded="'+!!open+'"><div class="eyebrow">'+esc(t.label)+'</div><div style="font-family:\'Cormorant Garamond\',serif;font-weight:600;font-size:22px">'+esc(t.verse.ref)+'</div><div class="muted">'+tx(open?'Say it once · tap to hide the words':'Say it once · tap to check the words')+'</div></button>'+
@@ -875,12 +877,12 @@ var ACT={
   reset:function(){
     (S.groups||[]).forEach(function(g){if(S.fb&&S.fb.uid)fbCall('DELETE','groups/'+g.code+'/members/'+S.fb.uid).catch(function(){});});
     S.plans=[];S.done={};S.groups=[];UI.gm={};UI.confirm=null;save();UI.tab='today';},
-  snoozeopen:function(){UI.snooze={h:0,m:15};},
+  snoozeopen:function(d){UI.snooze={h:0,m:15,ref:(d&&d.ref)||''};},
   snoozeno:function(){UI.snooze=null;},
   snoozego:function(){var s=UI.snooze,mins=s.h*60+s.m;if(!mins)return;
     var t=new Date(),n=todayDn(),M=MSG[LANG==='es'?'es':'en'].day,m=M[(n+1)%M.length];
     S.snz={iso:dnToIso(n),until:t.getHours()*60+t.getMinutes()+mins};
-    if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({snooze:mins,title:fillName(m[0],S.name),body:m[1]});}catch(e){}}
+    if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({snooze:mins,title:fillName(m[0],S.name),body:s.ref?txf('{a} is waiting for you.',s.ref):m[1]});}catch(e){}}
     UI.note=txf('Okay. I will remind you in {a}.',durText(s.h,s.m));UI.noteId=null;UI.snooze=null;save();},
   still:function(){S.still=!S.still;save();},
   cheerclose:function(){UI.cheer=null;},
