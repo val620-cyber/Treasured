@@ -250,13 +250,14 @@ var ES={
  'Start here: Personal':'Empieza aquí: Personal','Tap Personal, then "Add a verse or passage". Choose your verses, the day you want to begin, and how often you want a new verse.':'Toca Personal y luego "Agregar un versículo o pasaje". Elige tus versículos, el día en que quieres empezar y cada cuánto quieres un versículo nuevo.',
  'Every day: Today':'Cada día: Hoy','Today shows the verses for the day. Say a verse aloud, then tap the red button once for each time you say it. "Hide words" lets you test yourself.':'Hoy muestra los versículos del día. Di un versículo en voz alta y toca el botón rojo una vez por cada repetición. "Ocultar palabras" te permite ponerte a prueba.',
  'Look ahead: Calendar':'Mira adelante: Calendario','Tap any day to see which verses are planned for it.':'Toca cualquier día para ver qué versículos están planeados.',
- 'Together: Group':'Juntos: Grupo','To memorize with friends, tap Group, name your group and choose a passage. Share the 6-letter code so they can join. You will see who has finished each day.':'Para memorizar con amigos, toca Grupo, ponle nombre a tu grupo y elige un pasaje. Comparte el código de 6 letras para que se unan. Verás quién ha terminado cada día.',
+ 'Together: Group':'Juntos: Grupo','To memorize with friends, tap Group, name your group and choose a passage. Then tap "Invite friends" to send them a link, or simply tell them the 6-letter code. You will see who has finished each day.':'Para memorizar con amigos, toca Grupo, ponle nombre a tu grupo y elige un pasaje. Luego toca "Invitar amigos" para enviarles un enlace, o simplemente diles el código de 6 letras. Verás quién ha terminado cada día.',
  'Reminders: Settings':'Recordatorios: Ajustes','Choose a reminder time for each day of the week, change the language, or watch this tour again.':'Elige una hora de recordatorio para cada día de la semana, cambia el idioma o vuelve a ver este recorrido.',
  '{a} of {b}':'{a} de {b}','Skip tour':'Saltar recorrido','Add my first passage':'Agregar mi primer pasaje','Show the tour again':'Ver el recorrido otra vez','Share the app':'Compartir la aplicación','I am memorizing Scripture with Sword of the Word. It is free:':'Estoy memorizando las Escrituras con Espada de la Palabra. Es gratis:','Other phones and computers':'Otros teléfonos y computadoras','Link copied. Paste it in a message to a friend.':'Enlace copiado. Pégalo en un mensaje a un amigo.',
  '{a} is waiting for you.':'{a} te está esperando.',
  'Added {a}. I worked out where each verse starts. Please check them below.':'Se agregaron {a}. Calculé dónde empieza cada versículo. Revísalos abajo, por favor.','Groups store your nickname and daily checkmarks online. You can delete all of it at any time.':'Los grupos guardan tu apodo y tus marcas diarias en línea. Puedes borrar todo en cualquier momento.','Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.':'¿Borrar del servidor tu apodo, tus marcas y los grupos que creaste? No se puede deshacer.','Delete my group data':'Borrar mis datos de grupo','Done. Your group data was deleted from the server. Your passages stay on this device.':'Listo. Tus datos de grupo se borraron del servidor. Tus pasajes se quedan en este dispositivo.',
  'Pick the book, chapter and verses above, then paste the passage from your Bible app. The app works out where each verse starts.':'Elige arriba el libro, el capítulo y los versículos; luego pega el pasaje desde tu aplicación de la Biblia. La aplicación calcula dónde empieza cada versículo.','Choose the chapter and the starting verse first, so each verse gets its proper name.':'Elige primero el capítulo y el versículo inicial, para que cada versículo reciba su nombre correcto.',
  'Finished today: {a}':'Terminado hoy: {a}','Show':'Mostrar','Hide':'Ocultar',
+ 'Invite friends':'Invitar amigos','Send the invite link, or tell them the code {a}.':'Envía el enlace de invitación o diles el código {a}.','Join my group "{a}" on Sword of the Word. Tap this link to join: {b}':'Únete a mi grupo "{a}" en Espada de la Palabra. Toca este enlace para unirte: {b}','(Group code: {a})':'(Código del grupo: {a})','You were invited to a group. Tap Join to enter it.':'Te invitaron a un grupo. Toca Unirse para entrar.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -569,7 +570,7 @@ var TOUR=[
  {tab:'passages',t:'Start here: Personal',b:'Tap Personal, then "Add a verse or passage". Choose your verses, the day you want to begin, and how often you want a new verse.'},
  {tab:'today',t:'Every day: Today',b:'Today shows the verses for the day. Say a verse aloud, then tap the red button once for each time you say it. "Hide words" lets you test yourself.'},
  {tab:'calendar',t:'Look ahead: Calendar',b:'Tap any day to see which verses are planned for it.'},
- {tab:'group',t:'Together: Group',b:'To memorize with friends, tap Group, name your group and choose a passage. Share the 6-letter code so they can join. You will see who has finished each day.'},
+ {tab:'group',t:'Together: Group',b:'To memorize with friends, tap Group, name your group and choose a passage. Then tap "Invite friends" to send them a link, or simply tell them the 6-letter code. You will see who has finished each day.'},
  {tab:'settings',t:'Reminders: Settings',b:'Choose a reminder time for each day of the week, change the language, or watch this tour again.'}];
 var TAB_ORDER=['today','passages','calendar','group','settings'];
 function tourOn(){return UI.tour!=null&&!UI.wiz&&S.welcomed;}
@@ -652,7 +653,8 @@ function viewGroup(){
     h+='<div class="card"><div class="eyebrow red">'+tx('Group code')+' · <span style="letter-spacing:3px">'+esc(g.code)+'</span></div><h2 style="margin-top:4px">'+esc(g.name)+'</h2><p class="muted">'+(p?esc(p.title)+' · ':'')+txf(g.created?'Created {a}':'Joined {a}',fmt(isoToDn(g.created||g.joined),true))+'</p>'+
      '<div class="eyebrow" style="margin-top:6px">'+tx('Everyone in this group today')+'</div>'+
      (ms?ms.map(function(m){return memberLine(m,iso);}).join(''):'<p class="muted">'+tx('Loading…')+'</p>')+
-     '<div class="row" style="flex-wrap:wrap;margin-top:12px"><button class="btn small" data-a="gshare" data-code="'+esc(g.code)+'">'+tx('Invite')+'</button><button class="btn plain small" data-a="grefresh" data-code="'+esc(g.code)+'">'+tx('Refresh')+'</button>'+
+     '<button class="btn wide" style="margin-top:14px" data-a="gshare" data-code="'+esc(g.code)+'">'+tx('Invite friends')+'</button><p class="muted" style="margin:8px 0 0;text-align:center">'+txf('Send the invite link, or tell them the code {a}.',g.code)+'</p>'+
+     '<div class="row" style="flex-wrap:wrap;margin-top:12px"><button class="btn plain small" data-a="grefresh" data-code="'+esc(g.code)+'">'+tx('Refresh')+'</button>'+
      (UI.gconfirm===g.code?'<span class="muted">'+tx('Leave this group? Your passage stays on this device.')+'</span><button class="btn small" data-a="gleave" data-code="'+esc(g.code)+'">'+tx('Yes, leave')+'</button><button class="btn plain small" data-a="gnoleave">'+tx('Keep')+'</button>':UI.gconfirm==='del:'+g.code?'<span class="muted">'+tx('Delete this group for everyone? This cannot be undone. Your passage stays on this device.')+'</span><button class="btn small" data-a="gdel" data-code="'+esc(g.code)+'">'+tx('Yes, delete it')+'</button><button class="btn plain small" data-a="gnoleave">'+tx('Keep')+'</button>':'<button class="btn plain small" data-a="gaskleave" data-code="'+esc(g.code)+'">'+tx('Leave group')+'</button>'+(g.owner!==false?'<button class="btn plain small" data-a="gaskdel" data-code="'+esc(g.code)+'">'+tx('Delete group')+'</button>':''))+'</div></div>';
   });
   var free=S.plans.filter(function(p){return !p.group;});
@@ -937,7 +939,7 @@ var ACT={
   },
   gshare:function(d){
     var g=S.groups.filter(function(x){return x.code===d.code;})[0];if(!g)return;
-    shareOut(txf('Join my group "{a}" on Sword of the Word. Open the app, tap Group, and enter this code: {b}',g.name,g.code)+' '+appLinks(),'Invite copied. Paste it in a message to your friends.','gmsg');
+    shareOut(txf('Join my group "{a}" on Sword of the Word. Tap this link to join: {b}',g.name,INVITE_URL+'join.html?code='+g.code)+' '+txf('(Group code: {a})',g.code),'Invite copied. Paste it in a message to your friends.','gmsg');
   },
   wipeask:function(){UI.wipe=true;UI.smsg='';},
   wipeno:function(){UI.wipe=false;},
@@ -1067,7 +1069,9 @@ document.addEventListener('change',function(e){
   var el=e.target;if(el.dataset&&el.dataset.c==='rem'){S.reminders[+el.dataset.i]=el.value||'07:00';save();}
   if(el.dataset&&el.dataset.c==='name'){S.name=el.value.trim().slice(0,30);save();}
 });
-load();if(!S.groups)S.groups=[];if(S.welcomed&&!S.tour){UI.tour=0;UI.tab=TOUR[0].tab;}glitterInit();render();nativeSync();queueReport();
+load();if(!S.groups)S.groups=[];
+try{var jc=(/[?&]join=([A-Za-z0-9]{6})/.exec(location.search||'')||[])[1];if(jc){UI.g.code=jc.toUpperCase();UI.tab='group';UI.gmsg=tx('You were invited to a group. Tap Join to enter it.');if(S.welcomed&&!S.tour)S.tour='done';}}catch(e){}
+if(S.welcomed&&!S.tour){UI.tour=0;UI.tab=TOUR[0].tab;}glitterInit();render();nativeSync();queueReport();
 if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({ready:true});}catch(e){}}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){render();nativeSync();queueReport();if(UI.tab==='group')refreshGroups();}});
 </script>
