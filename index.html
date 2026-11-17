@@ -222,6 +222,7 @@ var ES={
  '{a} of {b}':'{a} de {b}','Skip tour':'Saltar recorrido','Add my first passage':'Agregar mi primer pasaje','Show the tour again':'Ver el recorrido otra vez','Share the app':'Compartir la aplicación','I am memorizing Scripture with Sword of the Word. It is free:':'Estoy memorizando las Escrituras con Espada de la Palabra. Es gratis:','Other phones and computers':'Otros teléfonos y computadoras','Link copied. Paste it in a message to a friend.':'Enlace copiado. Pégalo en un mensaje a un amigo.',
  '{a} is waiting for you.':'{a} te está esperando.',
  'Added {a}. I worked out where each verse starts. Please check them below.':'Se agregaron {a}. Calculé dónde empieza cada versículo. Revísalos abajo, por favor.','Groups store your nickname and daily checkmarks online. You can delete all of it at any time.':'Los grupos guardan tu apodo y tus marcas diarias en línea. Puedes borrar todo en cualquier momento.','Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.':'¿Borrar del servidor tu apodo, tus marcas y los grupos que creaste? No se puede deshacer.','Delete my group data':'Borrar mis datos de grupo','Done. Your group data was deleted from the server. Your passages stay on this device.':'Listo. Tus datos de grupo se borraron del servidor. Tus pasajes se quedan en este dispositivo.',
+ 'Pick the book, chapter and verses above, then paste the passage from your Bible app. The app works out where each verse starts.':'Elige arriba el libro, el capítulo y los versículos; luego pega el pasaje desde tu aplicación de la Biblia. La aplicación calcula dónde empieza cada versículo.','Choose the chapter and the starting verse first, so each verse gets its proper name.':'Elige primero el capítulo y el versículo inicial, para que cada versículo reciba su nombre correcto.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -623,8 +624,7 @@ function viewGroup(){
   var free=S.plans.filter(function(p){return !p.group;});
   h+='<div class="card"><h2>'+tx('Start a group')+'</h2><p class="muted">'+tx('Name your group, then choose what you will memorize together and on which days.')+'</p><label for="g_name">'+tx('Group name')+'</label><input id="g_name" maxlength="40" value="'+esc(UI.g.name)+'">'+
      '<button class="btn wide" style="margin-top:14px" data-a="gnew"'+(UI.gbusy?' disabled':'')+'>'+tx(UI.gbusy?'Working…':'Choose the passage and schedule')+'</button>'+
-     (free.length?'<div class="eyebrow" style="margin-top:18px">'+tx('Or use a passage you already have')+'</div><select id="g_plan" aria-label="'+tx('Passage')+'">'+free.map(function(p){return '<option value="'+p.id+'"'+(UI.g.plan===p.id?' selected':'')+'>'+esc(p.title)+'</option>';}).join('')+'</select>'+
-     '<button class="btn ghost wide" style="margin-top:10px" data-a="gcreate"'+(UI.gbusy?' disabled':'')+'>'+tx('Use this passage')+'</button>':'')+'</div>';
+     ''+'</div>';
   h+='<div class="card"><h2>'+tx('Join a group')+'</h2><p class="muted">'+tx('Enter the 6-letter code a friend sent you.')+'</p><label for="g_code">'+tx('Group code')+'</label><input id="g_code" maxlength="6" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px;font-weight:700" value="'+esc(UI.g.code)+'">'+
      '<button class="btn ghost wide" style="margin-top:14px" data-a="gjoin"'+(UI.gbusy?' disabled':'')+'>'+tx(UI.gbusy?'Working…':'Join')+'</button></div>';
   return h;
@@ -817,13 +817,13 @@ function viewWizard(){
   function nav(){return '<div class="row"><button class="btn plain" data-a="wback">'+tx('Back')+'</button><button class="btn dark grow" data-a="wnext">'+tx('Continue')+'</button></div>';}
   if(W.step===1){
     body=head+'<h1>'+tx(W.group?'What will your group memorize?':'What would you like to memorize?')+'</h1></div><div class="card"><div class="chips"><button class="chip'+(W.src==='kjv'?' on':'')+'" data-a="wsrc" data-v="kjv" aria-pressed="'+(W.src==='kjv')+'">'+tx('King James Version')+'</button><button class="chip'+(W.src==='paste'?' on':'')+'" data-a="wsrc" data-v="paste" aria-pressed="'+(W.src==='paste')+'">'+tx('Paste my own')+'</button></div>';
+    var pick='<label for="w_book">'+tx('Book')+'</label><select id="w_book">'+names.map(function(b,j){return '<option value="'+j+'"'+(String(j)===String(W.book)?' selected':'')+'>'+b+'</option>';}).join('')+'</select>'+
+       '<div class="grid3"><div><label for="w_ch">'+tx('Chapter')+'</label><input id="w_ch" inputmode="numeric" value="'+esc(W.ch)+'"></div><div><label for="w_from">'+tx('From verse')+'</label><input id="w_from" inputmode="numeric" value="'+esc(W.from)+'"></div><div><label for="w_to">'+tx('To verse')+'</label><input id="w_to" inputmode="numeric" placeholder="'+tx('optional')+'" value="'+esc(W.to)+'"></div></div>';
     if(W.src==='kjv'){
-      body+='<label for="w_book">'+tx('Book')+'</label><select id="w_book">'+names.map(function(b,j){return '<option value="'+j+'"'+(String(j)===String(W.book)?' selected':'')+'>'+b+'</option>';}).join('')+'</select>'+
-       '<div class="grid3"><div><label for="w_ch">'+tx('Chapter')+'</label><input id="w_ch" inputmode="numeric" value="'+esc(W.ch)+'"></div><div><label for="w_from">'+tx('From verse')+'</label><input id="w_from" inputmode="numeric" value="'+esc(W.from)+'"></div><div><label for="w_to">'+tx('To verse')+'</label><input id="w_to" inputmode="numeric" placeholder="'+tx('optional')+'" value="'+esc(W.to)+'"></div></div>'+
-       '<button class="btn ghost wide" style="margin-top:14px" data-a="wfetch"'+(W.busy?' disabled':'')+'>'+tx(W.busy?'Looking up…':'Add these verses')+'</button>';
+      body+=pick+'<button class="btn ghost wide" style="margin-top:14px" data-a="wfetch"'+(W.busy?' disabled':'')+'>'+tx(W.busy?'Looking up…':'Add these verses')+'</button>';
     }else{
-      body+='<label for="w_ref">'+tx('Reference')+'</label><input id="w_ref" placeholder="'+tx('Romans 8:28-30')+'" value="'+esc(W.ref)+'"><label for="w_tr">'+tx('Translation (optional)')+'</label><input id="w_tr" placeholder="'+tx('LSB, NASB, ESV…')+'" value="'+esc(W.tr)+'">'+
-       '<label for="w_text">'+tx('Passage text')+'</label><textarea id="w_text" placeholder="'+tx('Paste the whole passage here')+'">'+esc(W.text)+'</textarea><p class="muted" style="margin:8px 0 0">'+tx('Paste the whole passage from your Bible app. Keep the verse numbers, or put each verse on its own line, and each verse will be named for you.')+'</p>'+
+      body+=pick+'<label for="w_tr">'+tx('Translation (optional)')+'</label><input id="w_tr" placeholder="'+tx('LSB, NASB, ESV…')+'" value="'+esc(W.tr)+'">'+
+       '<label for="w_text">'+tx('Passage text')+'</label><textarea id="w_text" placeholder="'+tx('Paste the whole passage here')+'">'+esc(W.text)+'</textarea><p class="muted" style="margin:8px 0 0">'+tx('Pick the book, chapter and verses above, then paste the passage from your Bible app. The app works out where each verse starts.')+'</p>'+
        '<button class="btn ghost wide" style="margin-top:14px" data-a="wpaste">'+tx('Add these verses')+'</button>';
     }
     if(W.msg)body+='<div class="msg" role="status">'+esc(W.msg)+'</div>';
@@ -832,7 +832,7 @@ function viewWizard(){
       body+='<div class="card"><div class="eyebrow">'+tx('Your list')+' · '+pv(W.verses.length)+'</div>'+W.verses.map(function(v,j){return '<div class="item"><div class="grow"><b>'+esc(v.ref)+'</b><div class="muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(v.t)+'</div></div><button class="x" data-a="wrm" data-i="'+j+'" aria-label="'+esc(txf('Remove {a}',v.ref))+'">×</button></div>';}).join('')+
        '<p class="muted" style="margin-top:8px">'+tx('Add more from anywhere in the Bible, or continue.')+'</p></div>';
     }
-    body+='<button class="btn dark wide" data-a="wnext"'+(W.verses.length?'':' disabled')+'>'+tx('Continue')+'</button>';
+    body+='<button class="btn dark wide" data-a="wnext"'+(W.busy?' disabled':'')+'>'+tx('Continue')+'</button>';
   }else if(W.step===2){
     body=head+'<h1>'+tx('When would you like to start?')+'</h1></div><div class="card"><label for="w_start">'+tx('Start date')+'</label><input id="w_start" type="date" value="'+esc(W.start)+'"><p class="muted" style="margin-top:10px">'+tx('Your first verse begins on this day.')+'</p></div>'+nav();
   }else if(W.step===3){
@@ -952,7 +952,10 @@ var ACT={
   wcancel:function(){UI.wiz=null;},
   wsrc:function(d){UI.wiz.src=d.v;UI.wiz.msg='';},
   wrm:function(d){UI.wiz.verses.splice(+d.i,1);},
-  wpaste:function(){var W=UI.wiz,r=parsePassage(W.ref,W.tr,W.text);
+  wpaste:function(d,auto){var W=UI.wiz;W.auto=!!auto;
+    var pc=parseInt(W.ch,10),pa=parseInt(W.from,10),pb=parseInt(W.to,10);
+    if(pc&&pa)W.ref=(LANG==='es'?BOOKS_ES:BOOKS)[parseInt(W.book,10)||0]+' '+pc+':'+pa+(pb>pa?'-'+pb:'');
+    var r=parsePassage(W.ref,W.tr,W.text);
     if(r.err==='split'&&r.R){
       // No verse numbers in the pasted text: compare it with the built-in Bible to find where each verse starts.
       var R=r.R,bi=bookIndex(R.book),code=LANG==='es'?'rv1909':'kjv';
@@ -961,7 +964,7 @@ var ACT={
         var parts=alignSplit(r.text,refs,r.n);
         if(!parts){W.msg=txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);render();return;}
         W.verses=W.verses.concat(parts.map(function(t,i){return {ref:R.book+' '+R.ch+':'+(R.a+i),t:t,tr:r.tag};}));W.text='';W.ref='';
-        W.msg=txf('Added {a}. I worked out where each verse starts. Please check them below.',pv(parts.length));render();
+        W.msg=txf('Added {a}. I worked out where each verse starts. Please check them below.',pv(parts.length));if(W.auto)ACT.wnext();render();
       };
       if(bi<0){finish(null);return;}
       W.busy=true;W.msg=tx('Working…');
@@ -971,10 +974,10 @@ var ACT={
       }).catch(function(){finish(null);});
       return;
     }
-    if(r.err){W.msg=r.err==='empty'?tx('Type or paste at least one verse first.'):r.err==='noref'?tx('Add the reference first, for example Romans 8:28-30, so each verse gets its proper name.'):txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);return;}
+    if(r.err){W.msg=r.err==='empty'?tx('Type or paste at least one verse first.'):r.err==='noref'?tx('Choose the chapter and the starting verse first, so each verse gets its proper name.'):txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);return;}
     W.verses=W.verses.concat(r.verses);W.text='';W.ref='';W.msg=txf('Added {a}.',pv(r.verses.length));},
-  wfetch:function(){
-    var W=UI.wiz,bi=parseInt(W.book,10)||0,ch=parseInt(W.ch,10),a=parseInt(W.from,10),b=parseInt(W.to,10);
+  wfetch:function(d,auto){
+    var W=UI.wiz;W.auto=!!auto;var bi=parseInt(W.book,10)||0,ch=parseInt(W.ch,10),a=parseInt(W.from,10),b=parseInt(W.to,10);
     if(!ch||!a){W.msg=tx('Enter a chapter and a starting verse.');return;}
     if(!b||b<a)b=a;
     var es=LANG==='es',code=es?'rv1909':'kjv',tag=es?' · RV1909':' · KJV',name=(es?BOOKS_ES:BOOKS)[bi];
@@ -990,10 +993,13 @@ var ACT={
         var vs=(j.verses||[]).map(clean);if(!vs.length)throw new Error('x');return vs;});
     }).then(function(vs){
       if(!UI.wiz)return;
-      W.verses=W.verses.concat(vs);W.busy=false;W.msg=txf('Added {a}.',pv(vs.length));render();
+      W.verses=W.verses.concat(vs);W.busy=false;W.msg=txf('Added {a}.',pv(vs.length));if(W.auto)ACT.wnext();render();
     }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=shown;W.tr=es?'RV1909':'KJV';W.msg=tx('The Bible text could not be reached from here. Paste the verses below instead.');render();});
   },
-  wnext:function(){var W=UI.wiz;if(W.step===1&&!W.verses.length)return;if(W.step===2&&!/^\d{4}-\d\d-\d\d$/.test(W.start))W.start=dnToIso(todayDn());if(W.step===3&&W.pace.type==='weekdays'&&!W.days.length)W.days=[1,3,5];W.step+=(W.group&&W.step===3?2:1);W.msg='';window.scrollTo(0,0);},
+  wnext:function(){var W=UI.wiz;
+    // Step 1 with nothing added yet: Continue adds what is filled in, then moves on by itself.
+    if(W.step===1&&!W.verses.length){(W.src==='kjv'?ACT.wfetch:ACT.wpaste)(null,true);if(!W.verses.length)return;}
+    W.auto=false;if(W.step===2&&!/^\d{4}-\d\d-\d\d$/.test(W.start))W.start=dnToIso(todayDn());if(W.step===3&&W.pace.type==='weekdays'&&!W.days.length)W.days=[1,3,5];W.step+=(W.group&&W.step===3?2:1);W.msg='';window.scrollTo(0,0);},
   wback:function(){UI.wiz.step-=(UI.wiz.group&&UI.wiz.step===5?2:1);window.scrollTo(0,0);},
   wpace:function(d){UI.wiz.pace=+d.n?{type:'every',n:+d.n}:{type:'weekdays'};},
   wday:function(d){var a=UI.wiz.days,i=a.indexOf(+d.i);if(i>=0)a.splice(i,1);else a.push(+d.i);},
