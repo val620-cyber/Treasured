@@ -133,6 +133,7 @@ textarea{min-height:260px;line-height:1.4}
 @keyframes tourpulse{from{box-shadow:0 0 0 2px #E2B24A}to{box-shadow:0 0 0 2px #E2B24A,0 0 16px 4px rgba(226,178,74,.75)}}
 .tourbg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:5;background:rgba(22,20,19,.34)}
 .tour{position:fixed;z-index:6;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:448px;background:#fff;border-radius:24px;padding:16px 18px 18px;border:1.5px solid #E2B24A;box-shadow:0 20px 50px rgba(22,20,19,.35);text-shadow:none}
+.tour.gask{bottom:auto;top:50%;transform:translate(-50%,-50%)}
 .tour h2{margin:6px 0 6px;color:var(--red)}
 .tour p{margin:0;font-size:15.5px;line-height:1.45}
 .tour .link{border:none;background:none;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;padding:4px 0}
@@ -740,6 +741,7 @@ function render(){
     tabs.innerHTML=T.map(function(x){return '<button data-a="tab" data-v="'+x[0]+'" class="'+(UI.tab===x[0]?'on':'')+(tourOn()&&TOUR[UI.tour].tab===x[0]?' tourhl':'')+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+x[2]+'</svg>'+tx(x[1])+'</button>';}).join('');
   }
   if(UI.snooze)html+=viewSnooze();
+  if(UI.graceAsk&&!UI.wiz)html+='<div class="tourbg"></div><div class="tour gask" role="dialog" aria-label="'+tx('Grace mode')+'"><div class="eyebrow red">'+tx('Grace mode')+'</div><p style="margin-top:8px">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p><div class="row" style="margin-top:14px"><button class="btn plain small" data-a="graceno">'+tx('Cancel')+'</button><button class="btn small" style="flex:1" data-a="grace" data-id="'+esc(UI.graceAsk)+'">'+tx('Pick up where I left off')+'</button></div></div>';
   if(UI.cheer)html+=viewCheer();
   if(tourOn())html+=viewTour();
   app.innerHTML=html;
@@ -816,12 +818,10 @@ function viewCalendar(){
 function paceText(p){return p.type==='weekdays'?txf('On {a}',p.days.map(function(d){return wd(d);}).join(', ')):p.n===1?tx('Every day'):p.n===7?tx('Once a week'):txf('Every {a} days',p.n);}
 function viewPassages(){
   var t=todayDn();
-  var h='<div class="card hero"><h1>'+tx('Personal')+'</h1><p class="muted" style="margin:6px 0 12px">'+tx('What you are memorizing on your own.')+'</p><button class="btn wide" data-a="newplan">'+tx('Add a verse or passage')+'</button></div>'+
-   '<div class="card bare"><div class="eyebrow red">'+tx('Grace mode')+'</div><p class="muted" style="margin:6px 0 0">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p></div>';
+  var h='<div class="card hero"><h1>'+tx('Personal')+'</h1><p class="muted" style="margin:6px 0 12px">'+tx('What you are memorizing on your own.')+'</p><button class="btn wide" data-a="newplan">'+tx('Add a verse or passage')+'</button></div>';
   S.plans.forEach(function(p){
-    var started=p.offsets.filter(function(o){return dateOfPlanDay(p,o)<=t;}).length;
-    h+='<div class="card">'+(p.group?'<div class="eyebrow red">'+tx('Group passage')+'</div>':'')+'<h2>'+esc(p.title)+'</h2><p class="muted">'+txf('{a} of {b} verses started',started,p.verses.length)+' · '+paceText(p.pace)+' · '+txf('began {a}',fmt(isoToDn(p.start)))+'</p>'+
-     (UI.note&&UI.noteId===p.id?'<div class="msg" role="status">'+esc(UI.note)+'</div>':'')+'<div class="row" style="flex-wrap:wrap"><button class="btn small" data-a="grace" data-id="'+p.id+'">'+tx('Grace mode')+'</button><button class="btn ghost small" data-a="shift" data-id="'+p.id+'" data-from="'+dnToIso(t)+'">'+tx('Take a rest day today')+'</button>'+
+    h+='<div class="card">'+(p.group?'<div class="eyebrow red">'+tx('Group passage')+'</div>':'')+'<h2>'+esc(p.title)+'</h2><p class="muted">'+paceText(p.pace)+' · '+txf('began {a}',fmt(isoToDn(p.start)))+'</p>'+
+     (UI.note&&UI.noteId===p.id?'<div class="msg" role="status">'+esc(UI.note)+'</div>':'')+'<div class="row" style="flex-wrap:wrap"><button class="btn small" data-a="graceask" data-id="'+p.id+'">'+tx('Grace mode')+'</button><button class="btn ghost small" data-a="shift" data-id="'+p.id+'" data-from="'+dnToIso(t)+'">'+tx('Take a rest day today')+'</button>'+
      (UI.confirm===p.id?'<span class="muted">'+tx('Delete this passage and its progress?')+'</span><button class="btn small" data-a="del" data-id="'+p.id+'">'+tx('Yes, delete')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button>':'<button class="btn plain small" data-a="askdel" data-id="'+p.id+'">'+tx('Delete')+'</button>')+'</div></div>';
   });
   return h;
@@ -959,7 +959,9 @@ var ACT={
   tournext:function(){if(UI.tour>=TOUR.length-1){var first=!S.plans.length;tourEnd();if(first)UI.wiz=newWiz();return;}UI.tour++;UI.tab=TOUR[UI.tour].tab;window.scrollTo(0,0);},
   tourback:function(){if(UI.tour>0){UI.tour--;UI.tab=TOUR[UI.tour].tab;window.scrollTo(0,0);}},
   tourskip:function(){tourEnd();},
-  grace:function(d){var t=todayDn(),any=false;S.plans.forEach(function(p){if(d.id&&p.id!==d.id)return;if(applyGrace(p,S.done,t))any=true;});
+  graceask:function(d){UI.graceAsk=d.id;UI.note=null;},
+  graceno:function(){UI.graceAsk=null;},
+  grace:function(d){UI.graceAsk=null;var t=todayDn(),any=false;S.plans.forEach(function(p){if(d.id&&p.id!==d.id)return;if(applyGrace(p,S.done,t))any=true;});
     UI.note=tx(any?'Done. Your schedule now continues from today.':'You are on track. Nothing to reset.');UI.noteId=d.id||null;save();},
   begin:function(){S.welcomed=true;save();UI.tour=0;UI.tab=TOUR[0].tab;},
   tab:function(d){if(UI.tour!=null){UI.tour=null;S.tour='done';save();}UI.tab=d.v;UI.smsg='';UI.confirm=null;UI.note=null;UI.gmsg='';UI.gconfirm=null;window.scrollTo(0,0);if(d.v==='group')refreshGroups();},
