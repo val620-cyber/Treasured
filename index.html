@@ -773,6 +773,8 @@ function viewSnooze(){
 }
 // Called by the iPhone app when the Snooze button on a reminder is tapped.
 window.showSnooze=function(){UI.snooze={h:0,m:15};UI.wiz=null;UI.tab='today';render();};
+// Called by the iPhone app when a reminder is tapped: go straight to Today's practice (unless the first-time tour is showing).
+window.openToday=function(){if(UI.tour!=null)return;UI.snooze=null;UI.wiz=null;UI.graceAsk=null;UI.cheer=null;UI.tab='today';render();try{window.scrollTo(0,0);}catch(e){}};
 function motto(){return esc(tx("The *Word of God* is your *Sword*. Keep it sharp in your heart for life's daily battles. We're here to help you stay *armed* and *faithful*.")).replace(/\*([^*]+)\*/g,'<b class="hl">$1</b>');}
 function viewWelcome(){
   return '<div class="card"><div class="eyebrow red">'+tx('Welcome')+'</div><h1>'+tx('Sword of the Word')+'</h1><p style="margin-top:10px">'+motto()+'</p><p class="muted" style="margin:0">'+tx('Pick a passage, choose your pace, and your calendar is built for you.')+'</p></div>'+
