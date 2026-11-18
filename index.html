@@ -190,6 +190,10 @@ input,select,textarea{font-size:18px}
  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 18px center,linear-gradient(180deg,#B42226 0%,#A4161A 50%,#8E1216 100%);
  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 3px 8px rgba(60,10,12,.2)}
 #w_src option{color:var(--ink);background:#fff}
+.item.vfull{align-items:flex-start;padding:12px 0}
+.item.vfull .verse{font-size:21px;line-height:1.45;margin:4px 0 0}
+.item.vfull .muted{font-size:15px;margin-left:2px}
+.item.vfull .x{margin-top:-4px}
 </style>
 </head>
 <body class="theme-a">
@@ -876,7 +880,7 @@ function viewWizard(){
     if(W.msg)body+='<div class="msg" role="status">'+esc(W.msg)+'</div>';
     body+='</div>';
     if(W.verses.length){
-      body+='<div class="card"><div class="eyebrow">'+tx('Your list')+' · '+pv(W.verses.length)+'</div>'+W.verses.map(function(v,j){return '<div class="item"><div class="grow"><b>'+esc(v.ref)+'</b><div class="muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(v.t)+'</div></div><button class="x" data-a="wrm" data-i="'+j+'" aria-label="'+esc(txf('Remove {a}',v.ref))+'">×</button></div>';}).join('')+
+      body+='<div class="card"><div class="eyebrow">'+tx('Your list')+' · '+pv(W.verses.length)+'</div>'+W.verses.map(function(v,j){return '<div class="item vfull"><div class="grow"><b>'+esc(v.ref)+'</b><span class="muted">'+esc(v.tr||'')+'</span><p class="verse">'+esc(v.t)+'</p></div><button class="x" data-a="wrm" data-i="'+j+'" aria-label="'+esc(txf('Remove {a}',v.ref))+'">×</button></div>';}).join('')+
        '<p class="muted" style="margin-top:8px">'+tx('Add more from anywhere in the Bible, or continue.')+'</p></div>';
     }
     body+='<button class="btn dark wide" data-a="wnext"'+(W.busy?' disabled':'')+'>'+tx('Continue')+'</button>';
