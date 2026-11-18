@@ -225,7 +225,7 @@ var ES={
  'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Recibirás un recordatorio a estas horas, con botones para posponerlo 1, 2 o 3 horas.',
  'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.':'Guardadas para cada día de la semana. Los recordatorios con opción de posponer llegan con la versión para iPhone; esta versión web no puede enviarlos.',
  'About':'Acerca de',
- 'Scripture from the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.':'Texto bíblico de la King James Version (inglés) y la Reina-Valera 1909 (español), ambas de dominio público, consultadas por medio de bible-api.com. También puedes pegar versículos de tu propia Biblia para uso personal. Tus pasajes y tu progreso se guardan solo en este dispositivo.',
+ 'Also available: the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.':'También disponibles: la King James Version (inglés) y la Reina-Valera 1909 (español), ambas de dominio público, consultadas por medio de bible-api.com. También puedes pegar versículos de tu propia Biblia para uso personal. Tus pasajes y tu progreso se guardan solo en este dispositivo.',
  'Erase all passages and progress on this device?':'¿Borrar todos los pasajes y el progreso de este dispositivo?','Yes, erase':'Sí, borrar todo','Erase everything':'Borrar todo',
  'Step {a} of 5':'Paso {a} de 5','Cancel':'Cancelar','What would you like to memorize?':'¿Qué te gustaría memorizar?','King James Version':'Reina-Valera 1909','Paste my own':'Pegar el mío',
  'Book':'Libro','Chapter':'Capítulo','From verse':'Desde el versículo','To verse':'Hasta el versículo','optional':'opcional','Looking up…':'Buscando…','Add these verses':'Agregar estos versículos',
@@ -259,6 +259,7 @@ var ES={
  'Pick the book, chapter and verses above, then paste the passage from your Bible app. The app works out where each verse starts.':'Elige arriba el libro, el capítulo y los versículos; luego pega el pasaje desde tu aplicación de la Biblia. La aplicación calcula dónde empieza cada versículo.','Choose the chapter and the starting verse first, so each verse gets its proper name.':'Elige primero el capítulo y el versículo inicial, para que cada versículo reciba su nombre correcto.',
  'Finished today: {a}':'Terminado hoy: {a}','Show':'Mostrar','Hide':'Ocultar',
  'Invite friends':'Invitar amigos','Send the invite link, or tell them the code {a}.':'Envía el enlace de invitación o diles el código {a}.','Join my group "{a}" on Sword of the Word. Tap this link to join: {b}':'Únete a mi grupo "{a}" en Espada de la Palabra. Toca este enlace para unirte: {b}','(Group code: {a})':'(Código del grupo: {a})','You were invited to a group. Tap Join to enter it.':'Te invitaron a un grupo. Toca Unirse para entrar.',
+ 'American Standard Version':'American Standard Version','Scripture: American Standard Version (1901), public domain.':'Escritura: American Standard Version (1901), de dominio público (en inglés).','Those verses were not found. Check the chapter and verse numbers.':'No se encontraron esos versículos. Revisa los números de capítulo y versículo.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -838,13 +839,13 @@ function viewSettings(){
    '<div class="card"><h2>'+tx('Language')+'</h2>'+langPicker()+'</div>'+
    '<div class="card"><h2>'+tx('Background')+'</h2><button class="choice'+(S.still?' on':'')+'" data-a="still" aria-pressed="'+!!S.still+'">'+tx('Still mode')+'<span>'+tx(S.still?'motion off':'motion on')+'</span></button></div>'+
    '<div class="card"><h2>'+tx('Reminder times')+'</h2><p class="muted">'+tx(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+reminderRows()+(isNative()?'<button class="btn ghost small" style="margin-top:6px" data-a="snoozeopen">'+tx('Snooze reminder')+'</button>':'')+'</div>'+
-   '<div class="card"><h2>'+tx('About')+'</h2><p class="muted">'+tx('Scripture from the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+' '+tx('If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.')+'</p>'+
+   '<div class="card"><h2>'+tx('About')+'</h2><p style="margin:0 0 8px;font-weight:600">'+tx('Scripture: American Standard Version (1901), public domain.')+'</p><p class="muted">'+tx('Also available: the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+' '+tx('If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.')+'</p>'+
    (UI.smsg?'<div class="msg" role="status">'+esc(UI.smsg)+'</div>':'')+'<div class="row" style="flex-wrap:wrap"><button class="btn ghost small" data-a="appshare">'+tx('Share the app')+'</button><button class="btn plain small" data-a="tourstart">'+tx('Show the tour again')+'</button></div>'+
    '<p class="muted" style="margin-top:14px">'+tx('Groups store your nickname and daily checkmarks online. You can delete all of it at any time.')+'</p>'+
    (UI.wipe?'<div class="row" style="flex-wrap:wrap"><span class="muted">'+tx('Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.')+'</span><button class="btn small" data-a="wipe">'+tx('Yes, delete it')+'</button><button class="btn plain small" data-a="wipeno">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="wipeask">'+tx('Delete my group data')+'</button>')+
    (UI.confirm==='reset'?'<p>'+tx('Erase all passages and progress on this device?')+'</p><div class="row"><button class="btn small" data-a="reset">'+tx('Yes, erase')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="askreset">'+tx('Erase everything')+'</button>')+'</div>';
 }
-function newWiz(){return {step:1,src:'kjv',book:'50',ch:'3',from:'1',to:'',ref:'',tr:'',text:'',verses:[],start:dnToIso(todayDn()),pace:{type:'every',n:2},days:[1,3,5],msg:'',busy:false};}
+function newWiz(){return {step:1,src:LANG==='es'?'kjv':'asv',book:'50',ch:'3',from:'1',to:'',ref:'',tr:'',text:'',verses:[],start:dnToIso(todayDn()),pace:{type:'every',n:2},days:[1,3,5],msg:'',busy:false};}
 function syncWiz(){
   var W=UI.wiz;if(!W)return;
   ['book','ch','from','to','ref','tr','text','start'].forEach(function(k){var el=document.getElementById('w_'+k);if(el)W[k]=el.value;});
@@ -856,10 +857,10 @@ function viewWizard(){
   var head='<div class="card"><div class="row between"><div class="eyebrow">'+(W.group?txf('New group: {a}',W.group)+' · ':'')+txf(W.group?'Step {a} of 4':'Step {a} of 5',SN)+'</div><button class="btn plain small" data-a="wcancel">'+tx('Cancel')+'</button></div><div class="steps">'+dots+'</div>';
   function nav(){return '<div class="row"><button class="btn plain" data-a="wback">'+tx('Back')+'</button><button class="btn dark grow" data-a="wnext">'+tx('Continue')+'</button></div>';}
   if(W.step===1){
-    body=head+'<h1>'+tx(W.group?'What will your group memorize?':'What would you like to memorize?')+'</h1></div><div class="card"><div class="chips"><button class="chip'+(W.src==='kjv'?' on':'')+'" data-a="wsrc" data-v="kjv" aria-pressed="'+(W.src==='kjv')+'">'+tx('King James Version')+'</button><button class="chip'+(W.src==='paste'?' on':'')+'" data-a="wsrc" data-v="paste" aria-pressed="'+(W.src==='paste')+'">'+tx('Paste my own')+'</button></div>';
+    body=head+'<h1>'+tx(W.group?'What will your group memorize?':'What would you like to memorize?')+'</h1></div><div class="card"><div class="chips">'+(LANG==='es'?'':'<button class="chip'+(W.src==='asv'?' on':'')+'" data-a="wsrc" data-v="asv" aria-pressed="'+(W.src==='asv')+'">'+tx('American Standard Version')+'</button>')+'<button class="chip'+(W.src==='kjv'?' on':'')+'" data-a="wsrc" data-v="kjv" aria-pressed="'+(W.src==='kjv')+'">'+tx('King James Version')+'</button><button class="chip'+(W.src==='paste'?' on':'')+'" data-a="wsrc" data-v="paste" aria-pressed="'+(W.src==='paste')+'">'+tx('Paste my own')+'</button></div>';
     var pick='<label for="w_book">'+tx('Book')+'</label><select id="w_book">'+names.map(function(b,j){return '<option value="'+j+'"'+(String(j)===String(W.book)?' selected':'')+'>'+b+'</option>';}).join('')+'</select>'+
        '<div class="grid3"><div><label for="w_ch">'+tx('Chapter')+'</label><input id="w_ch" inputmode="numeric" value="'+esc(W.ch)+'"></div><div><label for="w_from">'+tx('From verse')+'</label><input id="w_from" inputmode="numeric" value="'+esc(W.from)+'"></div><div><label for="w_to">'+tx('To verse')+'</label><input id="w_to" inputmode="numeric" placeholder="'+tx('optional')+'" value="'+esc(W.to)+'"></div></div>';
-    if(W.src==='kjv'){
+    if(W.src!=='paste'){
       body+=pick+'<button class="btn ghost wide" style="margin-top:14px" data-a="wfetch"'+(W.busy?' disabled':'')+'>'+tx(W.busy?'Looking up…':'Add these verses')+'</button>';
     }else{
       body+=pick+'<label for="w_tr">'+tx('Translation (optional)')+'</label><input id="w_tr" placeholder="'+tx('LSB, NASB, ESV…')+'" value="'+esc(W.tr)+'">'+
@@ -892,6 +893,17 @@ function viewWizard(){
   }
   return body;
 }
+// American Standard Version: built into the app (assets/asv.js, about 4 MB), loaded the first time it is needed. Works offline.
+var ASV_SRC='assets/asv.js',asvWait=null;
+function loadASV(){
+  if(window.ASV_DATA)return Promise.resolve(window.ASV_DATA);
+  if(!asvWait)asvWait=new Promise(function(ok,no){
+    try{var sc=document.createElement('script');sc.src=ASV_SRC;sc.onload=function(){window.ASV_DATA?ok(window.ASV_DATA):no(new Error('asv'));};sc.onerror=function(){asvWait=null;no(new Error('asv'));};document.head.appendChild(sc);}
+    catch(e){asvWait=null;no(e);}
+  });
+  return asvWait;
+}
+function asvRange(bi,ch,a,b){var c=((window.ASV_DATA||{})[BOOK_IDS[bi]]||[])[ch-1]||[],out=[];for(var v=a;v<=b;v++)if(c[v-1])out.push({verse:v,text:c[v-1]});return out;}
 function getJson(url){return fetch(url).then(function(r){if(!r.ok)throw new Error('x');return r.json();});}
 var ACT={
   lang:function(d){S.lang=d.v;LANG=d.v;save();},
@@ -1012,6 +1024,7 @@ var ACT={
       };
       if(bi<0){finish(null);return;}
       W.busy=true;W.msg=tx('Working…');
+      if(LANG!=='es'){loadASV().then(function(){var vs=asvRange(bi,R.ch,R.a,R.b).map(function(v){return v.text;});finish(vs.length===r.n?vs:null);}).catch(function(){finish(null);});return;}
       getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+R.ch).then(function(j){
         var vs=(j.verses||[]).filter(function(v){return +v.verse>=R.a&&+v.verse<=R.b;}).map(function(v){return String(v.text);});
         finish(vs.length===r.n?vs:null);
@@ -1024,10 +1037,20 @@ var ACT={
     var W=UI.wiz;W.auto=!!auto;var bi=parseInt(W.book,10)||0,ch=parseInt(W.ch,10),a=parseInt(W.from,10),b=parseInt(W.to,10);
     if(!ch||!a){W.msg=tx('Enter a chapter and a starting verse.');return;}
     if(!b||b<a)b=a;
-    var es=LANG==='es',code=es?'rv1909':'kjv',tag=es?' · RV1909':' · KJV',name=(es?BOOKS_ES:BOOKS)[bi];
+    var es=LANG==='es';if(es&&W.src==='asv')W.src='kjv';
+    var asv=W.src==='asv',code=es?'rv1909':'kjv',tag=asv?' · ASV':es?' · RV1909':' · KJV',name=(es?BOOKS_ES:BOOKS)[bi];
     var shown=name+' '+ch+':'+a+(b>a?'-'+b:'');
     function clean(v){return {ref:name+' '+ch+':'+v.verse,t:String(v.text).replace(/\s+/g,' ').trim(),tr:tag};}
     W.busy=true;W.msg='';
+    if(asv){
+      loadASV().then(function(){
+        if(!UI.wiz)return;var vs=asvRange(bi,ch,a,b).map(clean);
+        W.busy=false;
+        if(!vs.length){W.msg=tx('Those verses were not found. Check the chapter and verse numbers.');render();return;}
+        W.verses=W.verses.concat(vs);W.msg=txf('Added {a}.',pv(vs.length));if(W.auto)ACT.wnext();render();
+      }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=shown;W.tr='ASV';W.msg=tx('The Bible text could not be reached from here. Paste the verses below instead.');render();});
+      return;
+    }
     // First try the chapter address; if that fails, try the older reference address.
     getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+ch).then(function(j){
       var vs=(j.verses||[]).filter(function(v){return +v.verse>=a&&+v.verse<=b;}).map(clean);
@@ -1042,7 +1065,7 @@ var ACT={
   },
   wnext:function(){var W=UI.wiz;
     // Step 1 with nothing added yet: Continue adds what is filled in, then moves on by itself.
-    if(W.step===1&&!W.verses.length){(W.src==='kjv'?ACT.wfetch:ACT.wpaste)(null,true);if(!W.verses.length)return;}
+    if(W.step===1&&!W.verses.length){(W.src!=='paste'?ACT.wfetch:ACT.wpaste)(null,true);if(!W.verses.length)return;}
     W.auto=false;if(W.step===2&&!/^\d{4}-\d\d-\d\d$/.test(W.start))W.start=dnToIso(todayDn());if(W.step===3&&W.pace.type==='weekdays'&&!W.days.length)W.days=[1,3,5];W.step+=(W.group&&W.step===3?2:1);W.msg='';window.scrollTo(0,0);},
   wback:function(){UI.wiz.step-=(UI.wiz.group&&UI.wiz.step===5?2:1);window.scrollTo(0,0);},
   wpace:function(d){UI.wiz.pace=+d.n?{type:'every',n:+d.n}:{type:'weekdays'};},
