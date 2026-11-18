@@ -237,7 +237,7 @@ var ES={
  'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Recibirás un recordatorio a estas horas, con botones para posponerlo 1, 2 o 3 horas.',
  'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.':'Guardadas para cada día de la semana. Los recordatorios con opción de posponer llegan con la versión para iPhone; esta versión web no puede enviarlos.',
  'About':'Acerca de',
- 'Also available: the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.':'También disponibles: la King James Version (inglés) y la Reina-Valera 1909 (español), ambas de dominio público, consultadas por medio de bible-api.com. También puedes pegar versículos de tu propia Biblia para uso personal. Tus pasajes y tu progreso se guardan solo en este dispositivo.',
+ 'Also available: the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain. All three are built into the app and work without internet. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.':'También disponibles: la King James Version (inglés) y la Reina-Valera 1909 (español), ambas de dominio público. Las tres vienen dentro de la aplicación y funcionan sin internet. También puedes pegar versículos de tu propia Biblia para uso personal. Tus pasajes y tu progreso se guardan solo en este dispositivo.',
  'Erase all passages and progress on this device?':'¿Borrar todos los pasajes y el progreso de este dispositivo?','Yes, erase':'Sí, borrar todo','Erase everything':'Borrar todo',
  'Step {a} of 5':'Paso {a} de 5','Cancel':'Cancelar','What would you like to memorize?':'¿Qué te gustaría memorizar?','King James Version':'Reina-Valera 1909','Paste my own':'Pegar el mío',
  'Book':'Libro','Chapter':'Capítulo','From verse':'Desde el versículo','To verse':'Hasta el versículo','optional':'opcional','Looking up…':'Buscando…','Add these verses':'Agregar estos versículos',
@@ -273,6 +273,8 @@ var ES={
  'Invite friends':'Invitar amigos','Send the invite link, or tell them the code {a}.':'Envía el enlace de invitación o diles el código {a}.','Join my group "{a}" on Sword of the Word. Tap this link to join: {b}':'Únete a mi grupo "{a}" en Espada de la Palabra. Toca este enlace para unirte: {b}','(Group code: {a})':'(Código del grupo: {a})','You were invited to a group. Tap Join to enter it.':'Te invitaron a un grupo. Toca Unirse para entrar.',
  'American Standard Version':'American Standard Version','Scripture: American Standard Version (1901), public domain.':'Escritura: American Standard Version (1901), de dominio público (en inglés).','Those verses were not found. Check the chapter and verse numbers.':'No se encontraron esos versículos. Revisa los números de capítulo y versículo.',
  'Translation':'Traducción','Paste from my own Bible':'Pegar de mi propia Biblia',
+ 'The Bible text could not be loaded. Paste the verses below instead.':'No se pudo cargar el texto bíblico. Pega los versículos abajo.',
+ 'No internet connection right now. Your own practice still works and is saved on this phone. Your group will see your checkmarks once you are back online.':'Sin conexión a internet por ahora. Tu práctica sigue funcionando y se guarda en este teléfono. Tu grupo verá tus marcas cuando vuelvas a tener conexión.','No internet connection right now. Starting, joining or deleting a group needs the internet. Please try again when you are back online.':'Sin conexión a internet por ahora. Para crear, unirte o borrar un grupo se necesita internet. Inténtalo de nuevo cuando tengas conexión.','No internet connection right now, so nothing was deleted yet. Please try again when you are back online.':'Sin conexión a internet por ahora, así que todavía no se borró nada. Inténtalo de nuevo cuando tengas conexión.',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -627,14 +629,14 @@ function reportGroups(){
   }).catch(function(){});
 }
 var repTimer=null;
-function queueReport(){if(!S.groups||!S.groups.length||typeof setTimeout==='undefined')return;if(repTimer)clearTimeout(repTimer);repTimer=setTimeout(reportGroups,1500);}
+function queueReport(){if(!S.groups||!S.groups.length||typeof setTimeout==='undefined')return;if(repTimer)clearTimeout(repTimer);repTimer=setTimeout(function(){reportGroups().catch(function(){});},1500);}
 function loadMembers(code){
   return fbCall('GET','groups/'+code+'/members?pageSize=100').then(function(j){
     UI.gm[code]=(j.documents||[]).map(function(d){var o=decDoc(d);o.uid=d.name.split('/').pop();return o;}).sort(function(x,y){return String(x.name).localeCompare(String(y.name));});
     render();
-  }).catch(function(){if(!UI.gm[code])UI.gm[code]=[];UI.gmsg=tx('Could not reach the group server. Check your connection and try again.');render();});
+  }).catch(function(e){if(!UI.gm[code])UI.gm[code]=[];UI.gmsg=tx(e&&e.status?'Could not reach the group server. Check your connection and try again.':'No internet connection right now. Your own practice still works and is saved on this phone. Your group will see your checkmarks once you are back online.');render();});
 }
-function refreshGroups(){(S.groups||[]).forEach(function(g){reportGroups().then(function(){loadMembers(g.code);});});}
+function refreshGroups(){var r=reportGroups().catch(function(){});(S.groups||[]).forEach(function(g){r.then(function(){loadMembers(g.code);});});}
 function gReady(){
   if(!(S.name||'').trim()){UI.gmsg=tx('Add your name first, so your group can see who you are.');return false;}
   if(!(UI.g.name||'').trim()){UI.gmsg=tx('Give your group a name.');return false;}
@@ -650,7 +652,7 @@ function createGroup(name,p){
     return reportGroups().then(function(){return loadMembers(code);});
   }).catch(gFail);
 }
-function gFail(e){UI.gbusy=false;UI.gmsg=tx(e&&e.status===404?'No group has that code. Check it and try again.':'Could not reach the group server. Check your connection and try again.');render();}
+function gFail(e){UI.gbusy=false;UI.gmsg=tx(e&&e.status===404?'No group has that code. Check it and try again.':!(e&&e.status)?'No internet connection right now. Starting, joining or deleting a group needs the internet. Please try again when you are back online.':'Could not reach the group server. Check your connection and try again.');render();}
 function memberLine(m,iso){
   var d=m.days&&m.days[iso],me=S.fb&&m.uid===S.fb.uid,st;
   if(d&&d.t>0&&d.d>=d.t)st='<b style="color:var(--red)">✓ '+txf('Done today · {a} reps',d.r)+'</b>';
@@ -852,7 +854,7 @@ function viewSettings(){
    '<div class="card"><h2>'+tx('Language')+'</h2>'+langPicker()+'</div>'+
    '<div class="card"><h2>'+tx('Background')+'</h2><button class="choice'+(S.still?' on':'')+'" data-a="still" aria-pressed="'+!!S.still+'">'+tx('Still mode')+'<span>'+tx(S.still?'motion off':'motion on')+'</span></button></div>'+
    '<div class="card"><h2>'+tx('Reminder times')+'</h2><p class="muted">'+tx(isNative()?'You will get a reminder at these times, with buttons to snooze for 1, 2 or 3 hours.':'Saved for each day of the week. Reminders with snooze arrive with the iPhone version; this web version cannot send them.')+'</p>'+reminderRows()+(isNative()?'<button class="btn ghost small" style="margin-top:6px" data-a="snoozeopen">'+tx('Snooze reminder')+'</button>':'')+'</div>'+
-   '<div class="card"><h2>'+tx('About')+'</h2><p style="margin:0 0 8px;font-weight:600">'+tx('Scripture: American Standard Version (1901), public domain.')+'</p><p class="muted">'+tx('Also available: the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain, looked up through bible-api.com. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+' '+tx('If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.')+'</p>'+
+   '<div class="card"><h2>'+tx('About')+'</h2><p style="margin:0 0 8px;font-weight:600">'+tx('Scripture: American Standard Version (1901), public domain.')+'</p><p class="muted">'+tx('Also available: the King James Version (English) and the Reina-Valera 1909 (Spanish), both in the public domain. All three are built into the app and work without internet. You can also paste verses from your own Bible for personal use. Your passages and progress are stored only on this device.')+' '+tx('If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.')+'</p>'+
    (UI.smsg?'<div class="msg" role="status">'+esc(UI.smsg)+'</div>':'')+'<div class="row" style="flex-wrap:wrap"><button class="btn ghost small" data-a="appshare">'+tx('Share the app')+'</button><button class="btn plain small" data-a="tourstart">'+tx('Show the tour again')+'</button></div>'+
    '<p class="muted" style="margin-top:14px">'+tx('Groups store your nickname and daily checkmarks online. You can delete all of it at any time.')+'</p>'+
    (UI.wipe?'<div class="row" style="flex-wrap:wrap"><span class="muted">'+tx('Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.')+'</span><button class="btn small" data-a="wipe">'+tx('Yes, delete it')+'</button><button class="btn plain small" data-a="wipeno">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="wipeask">'+tx('Delete my group data')+'</button>')+
@@ -908,16 +910,20 @@ function viewWizard(){
   return body;
 }
 // American Standard Version: built into the app (assets/asv.js, about 4 MB), loaded the first time it is needed. Works offline.
-var ASV_SRC='assets/asv.js',asvWait=null;
-function loadASV(){
-  if(window.ASV_DATA)return Promise.resolve(window.ASV_DATA);
-  if(!asvWait)asvWait=new Promise(function(ok,no){
-    try{var sc=document.createElement('script');sc.src=ASV_SRC;sc.onload=function(){window.ASV_DATA?ok(window.ASV_DATA):no(new Error('asv'));};sc.onerror=function(){asvWait=null;no(new Error('asv'));};document.head.appendChild(sc);}
-    catch(e){asvWait=null;no(e);}
+// All three Bibles are built into the app (public domain, from eBible.org), so looking up verses never needs the internet.
+// Each file is loaded the first time that Bible is used.
+var BIBLES={asv:{src:'assets/asv.js',v:'ASV_DATA'},kjv:{src:'assets/kjv.js',v:'KJV_DATA'},rv1909:{src:'assets/rv1909.js',v:'RV1909_DATA'}},bibleWait={};
+function loadBible(code){
+  var B=BIBLES[code];if(window[B.v])return Promise.resolve(window[B.v]);
+  if(!bibleWait[code])bibleWait[code]=new Promise(function(ok,no){
+    try{var sc=document.createElement('script');sc.src=B.src;sc.onload=function(){window[B.v]?ok(window[B.v]):no(new Error(code));};sc.onerror=function(){delete bibleWait[code];no(new Error(code));};document.head.appendChild(sc);}
+    catch(e){delete bibleWait[code];no(e);}
   });
-  return asvWait;
+  return bibleWait[code];
 }
-function asvRange(bi,ch,a,b){var c=((window.ASV_DATA||{})[BOOK_IDS[bi]]||[])[ch-1]||[],out=[];for(var v=a;v<=b;v++)if(c[v-1])out.push({verse:v,text:c[v-1]});return out;}
+function bibleRange(code,bi,ch,a,b){var c=((window[BIBLES[code].v]||{})[BOOK_IDS[bi]]||[])[ch-1]||[],out=[];for(var v=a;v<=b;v++)if(c[v-1])out.push({verse:v,text:c[v-1]});return out;}
+function loadASV(){return loadBible('asv');}
+function asvRange(bi,ch,a,b){return bibleRange('asv',bi,ch,a,b);}
 function getJson(url){return fetch(url).then(function(r){if(!r.ok)throw new Error('x');return r.json();});}
 var ACT={
   lang:function(d){S.lang=d.v;LANG=d.v;save();},
@@ -926,8 +932,8 @@ var ACT={
     if(!gReady()||!p)return;
     createGroup(UI.g.name.trim(),p);
   },
-  gnew:function(){if(!gReady())return;UI.wiz=newWiz();UI.wiz.group=UI.g.name.trim();UI.gmsg='';window.scrollTo(0,0);},
-  gjoin:function(){
+  gnew:function(){if(!gReady())return;if(navigator.onLine===false){UI.gmsg=tx('No internet connection right now. Starting, joining or deleting a group needs the internet. Please try again when you are back online.');return;}UI.wiz=newWiz();UI.wiz.group=UI.g.name.trim();UI.gmsg='';window.scrollTo(0,0);},
+  gjoin:function(){if(navigator.onLine===false){UI.gmsg=tx('No internet connection right now. Starting, joining or deleting a group needs the internet. Please try again when you are back online.');return;}
     var code=(UI.g.code||'').trim().toUpperCase();
     if(!(S.name||'').trim()){UI.gmsg=tx('Add your name first, so your group can see who you are.');return;}
     if(code.length!==6){UI.gmsg=tx('No group has that code. Check it and try again.');return;}
@@ -971,14 +977,16 @@ var ACT={
   wipeno:function(){UI.wipe=false;},
   wipe:function(){
     UI.wipe=false;
-    var jobs=S.groups.map(function(g){return fbCall('DELETE','groups/'+g.code+'/members/'+(S.fb?S.fb.uid:'x')).catch(function(){}).then(function(){return g.owner?fbCall('DELETE','groups/'+g.code).catch(function(){}):null;});});
+    // A missing connection must not look like success: only clear the device once the server has really deleted everything.
+    var net=function(e){if(!e||!e.status)throw e;};
+    var jobs=S.groups.map(function(g){return fbCall('DELETE','groups/'+g.code+'/members/'+(S.fb?S.fb.uid:'x')).catch(net).then(function(){return g.owner?fbCall('DELETE','groups/'+g.code).catch(net):null;});});
     var tok=S.fb&&S.fb.token;
     Promise.all(jobs).then(function(){
-      return tok?fetch('https://identitytoolkit.googleapis.com/v1/accounts:delete?key='+FB.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok})}).catch(function(){}):null;
+      return tok?fetch('https://identitytoolkit.googleapis.com/v1/accounts:delete?key='+FB.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok})}):null;
     }).then(function(){
       S.plans.forEach(function(p){delete p.group;});S.groups=[];S.fb=null;UI.gm={};
       UI.smsg=tx('Done. Your group data was deleted from the server. Your passages stay on this device.');save();render();
-    });
+    }).catch(function(){UI.smsg=tx('No internet connection right now, so nothing was deleted yet. Please try again when you are back online.');render();});
   },
   appshare:function(){UI.smsg='';shareOut(tx('I am memorizing Scripture with Sword of the Word. It is free:')+' '+appLinks(),'Link copied. Paste it in a message to a friend.','smsg');},
   tourstart:function(){UI.tour=0;UI.tab=TOUR[0].tab;window.scrollTo(0,0);},
@@ -1038,11 +1046,8 @@ var ACT={
       };
       if(bi<0){finish(null);return;}
       W.busy=true;W.msg=tx('Working…');
-      if(LANG!=='es'){loadASV().then(function(){var vs=asvRange(bi,R.ch,R.a,R.b).map(function(v){return v.text;});finish(vs.length===r.n?vs:null);}).catch(function(){finish(null);});return;}
-      getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+R.ch).then(function(j){
-        var vs=(j.verses||[]).filter(function(v){return +v.verse>=R.a&&+v.verse<=R.b;}).map(function(v){return String(v.text);});
-        finish(vs.length===r.n?vs:null);
-      }).catch(function(){finish(null);});
+      var pb=LANG==='es'?'rv1909':'asv';
+      loadBible(pb).then(function(){var vs=bibleRange(pb,bi,R.ch,R.a,R.b).map(function(v){return v.text;});finish(vs.length===r.n?vs:null);}).catch(function(){finish(null);});return;
       return;
     }
     if(r.err){W.msg=r.err==='empty'?tx('Type or paste at least one verse first.'):r.err==='noref'?tx('Choose the chapter and the starting verse first, so each verse gets its proper name.'):txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);return;}
@@ -1056,26 +1061,13 @@ var ACT={
     var shown=name+' '+ch+':'+a+(b>a?'-'+b:'');
     function clean(v){return {ref:name+' '+ch+':'+v.verse,t:String(v.text).replace(/\s+/g,' ').trim(),tr:tag};}
     W.busy=true;W.msg='';
-    if(asv){
-      loadASV().then(function(){
-        if(!UI.wiz)return;var vs=asvRange(bi,ch,a,b).map(clean);
-        W.busy=false;
-        if(!vs.length){W.msg=tx('Those verses were not found. Check the chapter and verse numbers.');render();return;}
-        W.verses=W.verses.concat(vs);W.msg=txf('Added {a}.',pv(vs.length));if(W.auto)ACT.wnext();render();
-      }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=shown;W.tr='ASV';W.msg=tx('The Bible text could not be reached from here. Paste the verses below instead.');render();});
-      return;
-    }
-    // First try the chapter address; if that fails, try the older reference address.
-    getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+ch).then(function(j){
-      var vs=(j.verses||[]).filter(function(v){return +v.verse>=a&&+v.verse<=b;}).map(clean);
-      if(!vs.length)throw new Error('x');return vs;
-    }).catch(function(){
-      return getJson('https://bible-api.com/'+encodeURIComponent(BOOKS[bi]+' '+ch+':'+a+(b>a?'-'+b:''))+'?translation='+code).then(function(j){
-        var vs=(j.verses||[]).map(clean);if(!vs.length)throw new Error('x');return vs;});
-    }).then(function(vs){
-      if(!UI.wiz)return;
-      W.verses=W.verses.concat(vs);W.busy=false;W.msg=txf('Added {a}.',pv(vs.length));if(W.auto)ACT.wnext();render();
-    }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=shown;W.tr=es?'RV1909':'KJV';W.msg=tx('The Bible text could not be reached from here. Paste the verses below instead.');render();});
+    var bc=asv?'asv':code;
+    loadBible(bc).then(function(){
+      if(!UI.wiz)return;var vs=bibleRange(bc,bi,ch,a,b).map(clean);
+      W.busy=false;
+      if(!vs.length){W.msg=tx('Those verses were not found. Check the chapter and verse numbers.');render();return;}
+      W.verses=W.verses.concat(vs);W.msg=txf('Added {a}.',pv(vs.length));if(W.auto)ACT.wnext();render();
+    }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=shown;W.tr=tag.replace(' · ','');W.msg=tx('The Bible text could not be loaded. Paste the verses below instead.');render();});
   },
   wnext:function(){var W=UI.wiz;
     // Step 1 with nothing added yet: Continue adds what is filled in, then moves on by itself.
@@ -1113,6 +1105,7 @@ load();if(!S.groups)S.groups=[];
 try{var jc=(/[?&]join=([A-Za-z0-9]{6})/.exec(location.search||'')||[])[1];if(jc){UI.g.code=jc.toUpperCase();UI.tab='group';UI.gmsg=tx('You were invited to a group. Tap Join to enter it.');if(S.welcomed&&!S.tour)S.tour='done';}}catch(e){}
 if(S.welcomed&&!S.tour){UI.tour=0;UI.tab=TOUR[0].tab;}glitterInit();render();nativeSync();queueReport();
 if(isNative()){try{window.webkit.messageHandlers.treasured.postMessage({ready:true});}catch(e){}}
+if(window.addEventListener)window.addEventListener('online',function(){queueReport();if(UI.tab==='group')refreshGroups();});
 document.addEventListener('visibilitychange',function(){if(!document.hidden){render();nativeSync();queueReport();if(UI.tab==='group')refreshGroups();}});
 </script>
 </body>
