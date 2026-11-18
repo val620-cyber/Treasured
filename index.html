@@ -1064,9 +1064,18 @@ var ACT={
     var bc=asv?'asv':code;
     loadBible(bc).then(function(){
       // A few Spanish chapters are not stored in the app (their numbering did not line up); those are looked up online.
-      if(((window[BIBLES[bc].v]||{})[BOOK_IDS[bi]]||[])[ch-1]===null)return getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+ch).then(function(j){
-        return (j.verses||[]).filter(function(v){return +v.verse>=a&&+v.verse<=b;});
-      });
+      // The app remembers each of those chapters on the phone after the first online lookup, so they work offline from then on.
+      if(((window[BIBLES[bc].v]||{})[BOOK_IDS[bi]]||[])[ch-1]===null){
+        var ck='treasured.ch.'+code+'.'+BOOK_IDS[bi]+'.'+ch,saved=null;
+        try{saved=JSON.parse(localStorage.getItem(ck)||'null');}catch(e){}
+        var pick=function(list){return list.filter(function(v){return +v.verse>=a&&+v.verse<=b;});};
+        if(saved&&saved.length)return pick(saved);
+        return getJson('https://bible-api.com/data/'+code+'/'+BOOK_IDS[bi]+'/'+ch).then(function(j){
+          var list=(j.verses||[]).map(function(v){return {verse:+v.verse,text:String(v.text).replace(/\s+/g,' ').trim()};});
+          try{if(list.length)localStorage.setItem(ck,JSON.stringify(list));}catch(e){}
+          return pick(list);
+        });
+      }
       return bibleRange(bc,bi,ch,a,b);
     }).then(function(raw){
       if(!UI.wiz)return;var vs=raw.map(clean);
