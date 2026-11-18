@@ -260,6 +260,7 @@ var ES={
  'Finished today: {a}':'Terminado hoy: {a}','Show':'Mostrar','Hide':'Ocultar',
  'Invite friends':'Invitar amigos','Send the invite link, or tell them the code {a}.':'Envía el enlace de invitación o diles el código {a}.','Join my group "{a}" on Sword of the Word. Tap this link to join: {b}':'Únete a mi grupo "{a}" en Espada de la Palabra. Toca este enlace para unirte: {b}','(Group code: {a})':'(Código del grupo: {a})','You were invited to a group. Tap Join to enter it.':'Te invitaron a un grupo. Toca Unirse para entrar.',
  'American Standard Version':'American Standard Version','Scripture: American Standard Version (1901), public domain.':'Escritura: American Standard Version (1901), de dominio público (en inglés).','Those verses were not found. Check the chapter and verse numbers.':'No se encontraron esos versículos. Revisa los números de capítulo y versículo.',
+ 'Translation':'Traducción','Paste from my own Bible':'Pegar de mi propia Biblia',
  'Start a group':'Crear un grupo','Group name':'Nombre del grupo','Passage':'Pasaje','Create group':'Crear grupo','Add a passage first, then you can start a group with it.':'Primero agrega un pasaje; luego puedes crear un grupo con él.',
  'Join a group':'Unirse a un grupo','Enter the 6-letter code a friend sent you.':'Escribe el código de 6 letras que te envió un amigo.','Join':'Unirme',
  'Add your name first, so your group can see who you are.':'Primero agrega tu nombre, para que tu grupo sepa quién eres.','Give your group a name.':'Ponle un nombre a tu grupo.',
@@ -857,7 +858,8 @@ function viewWizard(){
   var head='<div class="card"><div class="row between"><div class="eyebrow">'+(W.group?txf('New group: {a}',W.group)+' · ':'')+txf(W.group?'Step {a} of 4':'Step {a} of 5',SN)+'</div><button class="btn plain small" data-a="wcancel">'+tx('Cancel')+'</button></div><div class="steps">'+dots+'</div>';
   function nav(){return '<div class="row"><button class="btn plain" data-a="wback">'+tx('Back')+'</button><button class="btn dark grow" data-a="wnext">'+tx('Continue')+'</button></div>';}
   if(W.step===1){
-    body=head+'<h1>'+tx(W.group?'What will your group memorize?':'What would you like to memorize?')+'</h1></div><div class="card"><div class="chips">'+(LANG==='es'?'':'<button class="chip'+(W.src==='asv'?' on':'')+'" data-a="wsrc" data-v="asv" aria-pressed="'+(W.src==='asv')+'">'+tx('American Standard Version')+'</button>')+'<button class="chip'+(W.src==='kjv'?' on':'')+'" data-a="wsrc" data-v="kjv" aria-pressed="'+(W.src==='kjv')+'">'+tx('King James Version')+'</button><button class="chip'+(W.src==='paste'?' on':'')+'" data-a="wsrc" data-v="paste" aria-pressed="'+(W.src==='paste')+'">'+tx('Paste my own')+'</button></div>';
+    body=head+'<h1>'+tx(W.group?'What will your group memorize?':'What would you like to memorize?')+'</h1></div><div class="card"><label for="w_src" style="margin-top:0">'+tx('Translation')+'</label><select id="w_src">'+
+      (LANG==='es'?[['kjv','Reina-Valera 1909'],['paste',tx('Paste from my own Bible')]]:[['asv','American Standard (ASV)'],['kjv','King James (KJV)'],['paste',tx('Paste from my own Bible')]]).map(function(o){return '<option value="'+o[0]+'"'+(W.src===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>';
     var pick='<label for="w_book">'+tx('Book')+'</label><select id="w_book">'+names.map(function(b,j){return '<option value="'+j+'"'+(String(j)===String(W.book)?' selected':'')+'>'+b+'</option>';}).join('')+'</select>'+
        '<div class="grid3"><div><label for="w_ch">'+tx('Chapter')+'</label><input id="w_ch" inputmode="numeric" value="'+esc(W.ch)+'"></div><div><label for="w_from">'+tx('From verse')+'</label><input id="w_from" inputmode="numeric" value="'+esc(W.from)+'"></div><div><label for="w_to">'+tx('To verse')+'</label><input id="w_to" inputmode="numeric" placeholder="'+tx('optional')+'" value="'+esc(W.to)+'"></div></div>';
     if(W.src!=='paste'){
@@ -1093,6 +1095,7 @@ document.addEventListener('scroll',function(e){
 document.addEventListener('change',function(e){
   var el=e.target;if(el.dataset&&el.dataset.c==='rem'){S.reminders[+el.dataset.i]=el.value||'07:00';save();}
   if(el.dataset&&el.dataset.c==='name'){S.name=el.value.trim().slice(0,30);save();}
+  if(el.id==='w_src'&&UI.wiz){syncWiz();UI.wiz.src=el.value;UI.wiz.msg='';render();}
 });
 load();if(!S.groups)S.groups=[];
 try{var jc=(/[?&]join=([A-Za-z0-9]{6})/.exec(location.search||'')||[])[1];if(jc){UI.g.code=jc.toUpperCase();UI.tab='group';UI.gmsg=tx('You were invited to a group. Tap Join to enter it.');if(S.welcomed&&!S.tour)S.tour='done';}}catch(e){}
