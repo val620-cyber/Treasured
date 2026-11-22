@@ -753,7 +753,7 @@ function render(){
   else if(!S.welcomed){tabs.hidden=true;html=viewWelcome();}
   else{
     tabs.hidden=!!UI.snooze;
-    html=UI.tab==='calendar'?viewCalendar():UI.tab==='passages'?viewPassages():UI.tab==='group'?viewGroup():UI.tab==='settings'?viewSettings():viewToday()+mottoCard();
+    html=UI.tab==='calendar'?viewCalendar():UI.tab==='passages'?viewPassages():UI.tab==='group'?viewGroup():UI.tab==='settings'?viewSettings():viewToday();
     var T=[['today','Today','<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>'],['passages','Personal','<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M9 9h6M9 13h6"></path>'],['calendar','Calendar','<rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16M9 3v4M15 3v4"></path>'],['group','Group','<circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><circle cx="17" cy="9" r="2.6"></circle><path d="M16 14.2c3 .2 5 2.6 5 5.8"></path>'],['settings','Settings','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle>']];
     tabs.innerHTML=T.map(function(x){return '<button data-a="tab" data-v="'+x[0]+'" class="'+(UI.tab===x[0]?'on':'')+(tourOn()&&TOUR[UI.tour].tab===x[0]?' tourhl':'')+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+x[2]+'</svg>'+tx(x[1])+'</button>';}).join('');
   }
@@ -811,14 +811,17 @@ function viewToday(){
   var left=ts.filter(function(t){return t.count<t.reps;}).length;
   h+='<div class="card hero"><div class="eyebrow">'+fmt(n,true)+'</div><h1>'+esc(tx("Today's practice"))+'</h1>'+(S.name?'<p style="margin:6px 0 0;font-weight:600;color:var(--red)">'+esc(txf('Stay armed, {a}.',S.name))+'</p>':'')+
      (S.plans.length?'<p class="muted" style="margin:6px 0 0">'+(ts.length?(left?txf('{a} of {b} left today',left,ts.length):tx('All done for today. Well done.')):tx('Nothing scheduled today. Rest well.'))+'</p>':'')+'</div>';
+  h+=mottoCard();
   if(!S.plans.length)return h+'<div class="card"><h2>'+tx('Start your first passage')+'</h2><p>'+tx('Choose a verse or passage and we will build your schedule.')+'</p><button class="btn wide" data-a="newplan">'+tx('Choose a passage')+'</button></div>';
   var behind=S.plans.some(function(p){return graceStart(p,S.done,n)!==null;});
-  if(behind)h+='<div class="card"><div class="eyebrow red">'+tx('Grace mode')+'</div><p style="margin-top:6px">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p><button class="btn ghost small" data-a="grace">'+tx('Pick up where I left off')+'</button></div>';
   if(UI.note){h+='<div class="msg" role="status">'+esc(UI.note)+'</div>';}
   // A finished verse shows its gold button for a moment, then leaves the page for the rest of the day (UI.showDone brings them back).
   var fin=ts.filter(function(t){return t.count>=t.reps;}),hid=fin.filter(function(t){return !(UI.gold&&UI.gold[t.key]);}).length;
   h+=ts.filter(function(t){return t.count<t.reps||UI.showDone||(UI.gold&&UI.gold[t.key]);}).map(taskCard).join('');
   if(hid)h+='<div class="card bare"><div class="row between"><p class="muted" style="margin:0">✓ '+txf('Finished today: {a}',pv(fin.length))+'</p><button class="btn gold small" data-a="showdone">'+tx(UI.showDone?'Hide':'Show')+'</button></div></div>';
+  // Grace mode sits at the very bottom, folded up; tapping it opens the explanation and the button.
+  if(behind)h+='<div class="card motto'+(UI.graceOpen?'':' folded')+'"><div class="mhead"><div class="eyebrow red">'+tx('Grace mode')+'</div><button class="mtog" data-a="graceopen" aria-expanded="'+(!!UI.graceOpen)+'">'+tx(UI.graceOpen?'Hide':'Show')+'</button></div>'+
+    (UI.graceOpen?'<p style="margin-top:6px">'+tx('Fell behind? No guilt. Pick up right where you left off, and your schedule restarts from today.')+'</p><button class="btn ghost small" data-a="grace">'+tx('Pick up where I left off')+'</button>':'')+'</div>';
   return h;
 }
 function viewCalendar(){
@@ -1051,6 +1054,7 @@ var ACT={
   pick:function(d){UI.cal.sel=+d.n;},
   wcancel:function(){UI.wiz=null;},
   motto:function(){S.mottoHide=!S.mottoHide;save();},
+  graceopen:function(){UI.graceOpen=!UI.graceOpen;},
   wsrc:function(d){UI.wiz.src=d.v;UI.wiz.msg='';},
   wrm:function(d){UI.wiz.verses.splice(+d.i,1);},
   wpaste:function(d,auto){var W=UI.wiz;W.auto=!!auto;
