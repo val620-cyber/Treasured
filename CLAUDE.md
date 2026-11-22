@@ -284,3 +284,4 @@ Next steps, in order:
 - Nov 18: tapping a reminder now opens Today's practice. Swift: `Reminders.pendingToday` is set for `UNNotificationDefaultActionIdentifier` in AppDelegate's didReceive, and `deliverSnooze()` calls `window.openToday()` once the page is ready (works when the app was closed too). Page: `window.openToday` closes setup/snooze/pop-ups and shows Today (skipped while the first-time tour is open). Not compiled by Claude (no Swift compiler in its workspace); first Xcode build after Nov 18 verified it.
 
 - Nov 22: The setup list ("Your list") never shows the same verse twice. addUnique() in app.js skips any verse whose reference is already on the list (fetch and paste both), and the message names the skipped ones.
+- Nov 22: Public support email is hebrews412apphelp@gmail.com (Val gave it for public use). It is on support.html, privacy.html and the App Store listing only.
