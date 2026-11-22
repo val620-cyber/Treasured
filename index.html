@@ -12,7 +12,7 @@
 /* The app's two fonts are built in (SIL Open Font License), so every phone shows the same lettering, even offline. */
 @font-face{font-family:'Cormorant Garamond';src:url('assets/cormorant.ttf') format('truetype');font-weight:300 700;font-display:swap}
 @font-face{font-family:'DM Sans';src:url('assets/dmsans.ttf') format('truetype');font-weight:100 1000;font-display:swap}
-.card.motto{text-align:center}.card.motto .verse{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;line-height:1.45;margin-top:6px}
+.card.motto{text-align:center}.card.motto .mhead{display:flex;align-items:center;justify-content:center;gap:10px}.card.motto.folded{padding-top:12px;padding-bottom:12px}.mtog{border:none;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--red,#a51c1c);text-decoration:underline;padding:6px 4px;cursor:pointer}.card.motto .verse{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;line-height:1.45;margin-top:6px}
 </style>
 <style>
 :root{--ink:#161413;--muted:#5E5955;--red:#A4161A;--deep:#7D0F13;--gold:#B8892B;--line:#DDD6CE}
@@ -803,7 +803,8 @@ function taskCard(t){
 // The verse that inspired the app, shown at the very bottom of the Today page (public-domain KJV / RV1909).
 function mottoCard(){
   var es=LANG==='es';
-  return '<div class="card motto"><div class="eyebrow">'+(es?'Hebreos 4:12 · RV1909':'Hebrews 4:12 · KJV')+'</div><p class="verse">'+(es?'Porque la palabra de Dios es viva y eficaz, y más penetrante que toda espada de dos filos: y que alcanza hasta partir el alma, y aun el espíritu, y las coyunturas y tuétanos, y discierne los pensamientos y las intenciones del corazón.':'For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart.')+'</p></div>';
+  var hid=!!S.mottoHide,lbl=es?'Hebreos 4:12 · RV1909':'Hebrews 4:12 · KJV';
+  return '<div class="card motto'+(hid?' folded':'')+'"><div class="mhead"><div class="eyebrow">'+lbl+'</div><button class="mtog" data-a="motto" aria-expanded="'+(!hid)+'">'+tx(hid?'Show':'Hide')+'</button></div>'+(hid?'':'<p class="verse">'+(es?'Porque la palabra de Dios es viva y eficaz, y más penetrante que toda espada de dos filos: y que alcanza hasta partir el alma, y aun el espíritu, y las coyunturas y tuétanos, y discierne los pensamientos y las intenciones del corazón.':'For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart.')+'</p>')+'</div>';
 }
 function viewToday(){
   var n=todayDn(),ts=tasksFor(S.plans,S.done,n),h='';
@@ -1049,6 +1050,7 @@ var ACT={
   mon:function(d){var c=UI.cal;c.m+=+d.v;if(c.m<0){c.m=11;c.y--;}if(c.m>11){c.m=0;c.y++;}},
   pick:function(d){UI.cal.sel=+d.n;},
   wcancel:function(){UI.wiz=null;},
+  motto:function(){S.mottoHide=!S.mottoHide;save();},
   wsrc:function(d){UI.wiz.src=d.v;UI.wiz.msg='';},
   wrm:function(d){UI.wiz.verses.splice(+d.i,1);},
   wpaste:function(d,auto){var W=UI.wiz;W.auto=!!auto;
