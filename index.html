@@ -250,7 +250,7 @@ var ES={
  'Pick a time for each day. Reminders with a snooze button arrive with the iPhone version; for now these times show on your calendar.':'Elige una hora para cada día. Los recordatorios con botón de posponer llegan con la versión para iPhone; por ahora estas horas se muestran en tu calendario.',
  'starts {a}':'comienza el {a}','Your plan':'Tu plan','each new verse: 25, 20, 15, then 10 times over four days, then a short daily review.':'cada versículo nuevo: 25, 20, 15 y luego 10 veces en cuatro días, y después un breve repaso diario.',
  '…and {a} more.':'…y {a} más.','Last new verse:':'Último versículo nuevo:','Back':'Atrás','Start my plan':'Comenzar mi plan',
- 'Type or paste at least one verse first.':'Primero escribe o pega al menos un versículo.','Enter a chapter and a starting verse.':'Escribe un capítulo y un versículo inicial.','Added {a}.':'Se agregaron {a}.',
+ 'Type or paste at least one verse first.':'Primero escribe o pega al menos un versículo.','Enter a chapter and a starting verse.':'Escribe un capítulo y un versículo inicial.','Added {a}.':'Se agregaron {a}.','Those verses are already on your list.':'Esos versículos ya están en tu lista.','Already on your list, so not added again: {a}.':'Ya estaban en tu lista, así que no se agregaron de nuevo: {a}.',
  'The Bible text could not be reached from here. Paste the verses below instead.':'No se pudo obtener el texto bíblico desde aquí. Pega los versículos abajo.',
  'Switch background':'Cambiar fondo',
  'Group':'Grupo','Memorize together. Everyone in a group follows the same calendar and sees who has finished today.':'Memoricen juntos. Todos en el grupo siguen el mismo calendario y ven quién terminó hoy.',
@@ -862,6 +862,19 @@ function viewSettings(){
    (UI.wipe?'<div class="row" style="flex-wrap:wrap"><span class="muted">'+tx('Delete your nickname, checkmarks and groups you started from the server? This cannot be undone.')+'</span><button class="btn small" data-a="wipe">'+tx('Yes, delete it')+'</button><button class="btn plain small" data-a="wipeno">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="wipeask">'+tx('Delete my group data')+'</button>')+
    (UI.confirm==='reset'?'<p>'+tx('Erase all passages and progress on this device?')+'</p><div class="row"><button class="btn small" data-a="reset">'+tx('Yes, erase')+'</button><button class="btn plain small" data-a="nodel">'+tx('Keep')+'</button></div>':'<button class="btn plain small" data-a="askreset">'+tx('Erase everything')+'</button>')+'</div>';
 }
+// Adds verses to the setup list, skipping any verse that is already there (same book, chapter and verse).
+function vkey(ref){return String(ref||'').toLowerCase().replace(/\s+/g,'');}
+function addUnique(W,list){
+  var have={},added=0,skipped=[];W.verses.forEach(function(v){have[vkey(v.ref)]=1;});
+  list.forEach(function(v){var k=vkey(v.ref);if(have[k]){skipped.push(v.ref);return;}have[k]=1;W.verses.push(v);added++;});
+  return {added:added,skipped:skipped};
+}
+function addedMsg(res,extra){
+  if(!res.added)return tx('Those verses are already on your list.');
+  var m=extra?txf(extra,pv(res.added)):txf('Added {a}.',pv(res.added));
+  if(res.skipped.length)m+=' '+txf('Already on your list, so not added again: {a}.',res.skipped.join(', '));
+  return m;
+}
 function newWiz(){return {step:1,src:LANG==='es'?'kjv':'asv',book:'50',ch:'3',from:'1',to:'',ref:'',tr:'',text:'',verses:[],start:dnToIso(todayDn()),pace:{type:'every',n:2},days:[1,3,5],msg:'',busy:false};}
 function syncWiz(){
   var W=UI.wiz;if(!W)return;
@@ -1043,8 +1056,8 @@ var ACT={
         if(!UI.wiz)return;W.busy=false;
         var parts=alignSplit(r.text,refs,r.n);
         if(!parts){W.msg=txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);render();return;}
-        W.verses=W.verses.concat(parts.map(function(t,i){return {ref:R.book+' '+R.ch+':'+(R.a+i),t:t,tr:r.tag};}));W.text='';W.ref='';
-        W.msg=txf('Added {a}. I worked out where each verse starts. Please check them below.',pv(parts.length));if(W.auto)ACT.wnext();render();
+        var res=addUnique(W,parts.map(function(t,i){return {ref:R.book+' '+R.ch+':'+(R.a+i),t:t,tr:r.tag};}));W.text='';W.ref='';
+        W.msg=addedMsg(res,'Added {a}. I worked out where each verse starts. Please check them below.');if(W.auto)ACT.wnext();render();
       };
       if(bi<0){finish(null);return;}
       W.busy=true;W.msg=tx('Working…');
@@ -1053,7 +1066,7 @@ var ACT={
       return;
     }
     if(r.err){W.msg=r.err==='empty'?tx('Type or paste at least one verse first.'):r.err==='noref'?tx('Choose the chapter and the starting verse first, so each verse gets its proper name.'):txf('The reference covers {a} verses, but I could not tell where each one starts. Keep the verse numbers in the text, or put each verse on its own line.',r.n);return;}
-    W.verses=W.verses.concat(r.verses);W.text='';W.ref='';W.msg=txf('Added {a}.',pv(r.verses.length));},
+    var res=addUnique(W,r.verses);W.text='';W.ref='';W.msg=addedMsg(res);},
   wfetch:function(d,auto){
     var W=UI.wiz;W.auto=!!auto;var bi=parseInt(W.book,10)||0,ch=parseInt(W.ch,10),a=parseInt(W.from,10),b=parseInt(W.to,10);
     if(!ch||!a){W.msg=tx('Enter a chapter and a starting verse.');return;}
@@ -1083,7 +1096,7 @@ var ACT={
       if(!UI.wiz)return;var vs=raw.map(clean);
       W.busy=false;
       if(!vs.length){W.msg=tx('Those verses were not found. Check the chapter and verse numbers.');render();return;}
-      W.verses=W.verses.concat(vs);W.msg=txf('Added {a}.',pv(vs.length));if(W.auto)ACT.wnext();render();
+      W.msg=addedMsg(addUnique(W,vs));if(W.auto)ACT.wnext();render();
     }).catch(function(){if(!UI.wiz)return;W.busy=false;W.src='paste';W.ref=shown;W.tr=tag.replace(' · ','');W.msg=tx('The Bible text could not be loaded. Paste the verses below instead.');render();});
   },
   wnext:function(){var W=UI.wiz;
