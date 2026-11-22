@@ -12,6 +12,7 @@
 /* The app's two fonts are built in (SIL Open Font License), so every phone shows the same lettering, even offline. */
 @font-face{font-family:'Cormorant Garamond';src:url('assets/cormorant.ttf') format('truetype');font-weight:300 700;font-display:swap}
 @font-face{font-family:'DM Sans';src:url('assets/dmsans.ttf') format('truetype');font-weight:100 1000;font-display:swap}
+.card.motto{text-align:center}.card.motto .verse{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;line-height:1.45;margin-top:6px}
 </style>
 <style>
 :root{--ink:#161413;--muted:#5E5955;--red:#A4161A;--deep:#7D0F13;--gold:#B8892B;--line:#DDD6CE}
@@ -752,7 +753,7 @@ function render(){
   else if(!S.welcomed){tabs.hidden=true;html=viewWelcome();}
   else{
     tabs.hidden=!!UI.snooze;
-    html=UI.tab==='calendar'?viewCalendar():UI.tab==='passages'?viewPassages():UI.tab==='group'?viewGroup():UI.tab==='settings'?viewSettings():viewToday();
+    html=UI.tab==='calendar'?viewCalendar():UI.tab==='passages'?viewPassages():UI.tab==='group'?viewGroup():UI.tab==='settings'?viewSettings():viewToday()+mottoCard();
     var T=[['today','Today','<circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>'],['passages','Personal','<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M9 9h6M9 13h6"></path>'],['calendar','Calendar','<rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16M9 3v4M15 3v4"></path>'],['group','Group','<circle cx="9" cy="8" r="3.2"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><circle cx="17" cy="9" r="2.6"></circle><path d="M16 14.2c3 .2 5 2.6 5 5.8"></path>'],['settings','Settings','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle>']];
     tabs.innerHTML=T.map(function(x){return '<button data-a="tab" data-v="'+x[0]+'" class="'+(UI.tab===x[0]?'on':'')+(tourOn()&&TOUR[UI.tour].tab===x[0]?' tourhl':'')+'"'+(UI.tab===x[0]?' aria-current="page"':'')+'><svg aria-hidden="true" viewBox="0 0 24 24">'+x[2]+'</svg>'+tx(x[1])+'</button>';}).join('');
   }
@@ -798,6 +799,11 @@ function taskCard(t){
   return '<div class="card"><div class="row"><button class="grow" style="border:none;background:none;text-align:left;padding:0;color:inherit" data-a="open" data-k="'+esc(id)+'" aria-expanded="'+!!open+'"><div class="eyebrow">'+esc(t.label)+'</div><div style="font-family:\'Cormorant Garamond\',serif;font-weight:600;font-size:22px">'+esc(t.verse.ref)+'</div><div class="muted">'+tx(open?'Say it once · tap to hide the words':'Say it once · tap to check the words')+'</div></button>'+
    '<button class="circle'+(done?' on':'')+'" data-a="check" data-k="'+esc(id)+'" aria-label="'+esc(txf('Mark {a} as said',t.verse.ref))+'" aria-pressed="'+done+'"><span style="display:flex;stroke:'+(done?'#fff':'#8A6516')+'">'+CHECK+'</span></button></div>'+
    (open?'<p class="verse" style="margin-bottom:0">'+esc(t.verse.t)+'</p>':'')+'</div>';
+}
+// The verse that inspired the app, shown at the very bottom of the Today page (public-domain KJV / RV1909).
+function mottoCard(){
+  var es=LANG==='es';
+  return '<div class="card motto"><div class="eyebrow">'+(es?'Hebreos 4:12 · RV1909':'Hebrews 4:12 · KJV')+'</div><p class="verse">'+(es?'Porque la palabra de Dios es viva y eficaz, y más penetrante que toda espada de dos filos: y que alcanza hasta partir el alma, y aun el espíritu, y las coyunturas y tuétanos, y discierne los pensamientos y las intenciones del corazón.':'For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart.')+'</p></div>';
 }
 function viewToday(){
   var n=todayDn(),ts=tasksFor(S.plans,S.done,n),h='';

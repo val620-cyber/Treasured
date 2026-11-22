@@ -285,3 +285,4 @@ Next steps, in order:
 
 - Nov 22: The setup list ("Your list") never shows the same verse twice. addUnique() in app.js skips any verse whose reference is already on the list (fetch and paste both), and the message names the skipped ones.
 - Nov 22: Public support email is hebrews412apphelp@gmail.com (Val gave it for public use). It is on support.html, privacy.html and the App Store listing only.
+- Nov 22: Hebrews 4:12 (KJV; RV1909 in Spanish) shown in a card at the very bottom of the Today page (mottoCard() in app.js). KJV chosen because it is public domain; LSB would need its copyright notice.
