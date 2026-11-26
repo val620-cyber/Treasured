@@ -282,7 +282,7 @@ var ES={
  'No group has that code. Check it and try again.':'Ningún grupo tiene ese código. Revísalo e inténtalo de nuevo.','You are already in that group.':'Ya estás en ese grupo.',
  'Could not reach the group server. Check your connection and try again.':'No se pudo conectar con el servidor de grupos. Revisa tu conexión e inténtalo de nuevo.',
  'Group created. Share the code with your friends.':'Grupo creado. Comparte el código con tus amigos.','You joined {a}. The passage was added to your calendar.':'Te uniste a {a}. El pasaje se agregó a tu calendario.',
- 'Invite copied. Paste it in a message to your friends.':'Invitación copiada. Pégala en un mensaje a tus amigos.',
+ 'Join my group "{a}" on Sword of the Word!':'¡Únete a mi grupo "{a}" en Espada de la Palabra!','iPhone or iPad, download the app:':'iPhone o iPad, descarga la aplicación:','Android or computer, open it here:':'Android o computadora, ábrela aquí:','After downloading, open Group and join with the code: {a}':'Después de descargarla, abre Grupo y únete con el código: {a}','Invite copied. Paste it in a message to your friends.':'Invitación copiada. Pégala en un mensaje a tus amigos.',
  'Join my group "{a}" on Sword of the Word. Open the app, tap Group, and enter this code: {b}':'Únete a mi grupo "{a}" en Espada de la Palabra. Abre la app, toca Grupo y escribe este código: {b}',
  'Working…':'Trabajando…','Everyone in this group today':'Todos en este grupo hoy',
  'If you join a group, your nickname and daily checkmarks are shared with that group through Google Firebase.':'Si te unes a un grupo, tu apodo y tus marcas diarias se comparten con ese grupo por medio de Google Firebase.','Our mission':'Nuestra misión','Sword of the Word':'Espada de la Palabra',
@@ -996,7 +996,12 @@ var ACT={
   },
   gshare:function(d){
     var g=S.groups.filter(function(x){return x.code===d.code;})[0];if(!g)return;
-    shareOut(txf('Join my group "{a}" on Sword of the Word. Tap this link to join: {b}',g.name,INVITE_URL+'join.html?code='+g.code)+' '+txf('(Group code: {a})',g.code),'Invite copied. Paste it in a message to your friends.','gmsg');
+    // One tap to the app: the App Store link for iPhone/iPad, the web version (which joins by itself) for Android and computers, then the code.
+    var msg=txf('Join my group "{a}" on Sword of the Word!',g.name)+'\n\n'+
+      (APP_STORE_URL?tx('iPhone or iPad, download the app:')+'\n'+APP_STORE_URL+'\n\n':'')+
+      tx('Android or computer, open it here:')+'\n'+INVITE_URL+'?join='+g.code+'\n\n'+
+      txf('After downloading, open Group and join with the code: {a}',g.code);
+    shareOut(msg,'Invite copied. Paste it in a message to your friends.','gmsg');
   },
   wipeask:function(){UI.wipe=true;UI.smsg='';},
   wipeno:function(){UI.wipe=false;},

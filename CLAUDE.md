@@ -289,3 +289,4 @@ Next steps, in order:
 - Nov 22: The Hebrews 4:12 card has a Hide/Show link (S.mottoHide, remembered on the phone).
 - Nov 22: Today layout: Hebrews 4:12 card sits right under the Today heading; the Grace mode card moved to the very bottom and is folded (Show/Hide, UI.graceOpen) so it does not invite falling behind.
 - Nov 25: App approved Nov 24 (App Store ID 6838117993). APP_STORE_URL set in app.js and join.html to https://apps.apple.com/app/id6838117993. join.html (web) now shows "Get the iPhone app" on every group invite immediately; the in-app "Share the app" text picks up the link in the next App Store update.
+- Nov 25: Group invite text rewritten (gshare): App Store link for iPhone/iPad, web link with ?join=CODE for Android/computers, then the code. Ships to phones in 1.0.1; live on the web now.
